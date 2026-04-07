@@ -11,10 +11,16 @@ function generateId(): string {
   return Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
 }
 
-const seedDependents: Dependent[] = [
-  { id: "dep-1", name: "Father", relation: "Parent", age: "58" },
-  { id: "dep-2", name: "Mother", relation: "Parent", age: "54" },
-];
+function isDefaultDependentEntry(dependent: Dependent): boolean {
+  const name = dependent.name.trim().toLowerCase();
+  return name === "father" || name === "mother";
+}
+
+export function sanitizeDependentList(dependents: Dependent[]): Dependent[] {
+  return dependents.filter((dependent) => dependent.name.trim().length > 0 && !isDefaultDependentEntry(dependent));
+}
+
+const seedDependents: Dependent[] = [];
 
 export function getDependents(): Dependent[] {
   try {
@@ -25,14 +31,18 @@ export function getDependents(): Dependent[] {
     }
 
     const parsed = JSON.parse(raw) as Dependent[];
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : seedDependents;
+    const sanitized = Array.isArray(parsed) ? sanitizeDependentList(parsed) : [];
+    if (sanitized.length !== parsed.length) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitized));
+    }
+    return sanitized.length > 0 ? sanitized : seedDependents;
   } catch {
     return seedDependents;
   }
 }
 
 export function setDependents(dependents: Dependent[]): void {
-  const sanitized = dependents.filter((dependent) => dependent.name.trim().length > 0);
+  const sanitized = sanitizeDependentList(dependents);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitized.length > 0 ? sanitized : seedDependents));
 }
 
@@ -49,6 +59,6 @@ export function removeDependent(id: string): void {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(next.length > 0 ? next : seedDependents));
 }
 
-export function getDefaultDependent(): Dependent {
-  return getDependents()[0] ?? seedDependents[0];
+export function getDefaultDependent(): Dependent | null {
+  return getDependents()[0] ?? null;
 }

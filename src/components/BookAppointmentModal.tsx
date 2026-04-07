@@ -34,7 +34,10 @@ const BookAppointmentModal = ({ open, onClose, doctor }: BookAppointmentModalPro
   const { isAuthenticated, user } = useAuthStatus();
   const selfName = user?.displayName || user?.email?.split("@")[0] || "You";
 
-  const dependents = useMemo(() => getDependents(), [open]);
+  const dependents = useMemo(
+    () => [{ id: "self", name: selfName, relation: "Self", age: "Adult" }, ...getDependents()],
+    [open, selfName],
+  );
 
   useEffect(() => {
     const activeDependent = dependents.find((dependent) => dependent.id === selectedDependentId) ?? dependents[0];

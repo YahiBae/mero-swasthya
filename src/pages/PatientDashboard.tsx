@@ -22,8 +22,8 @@ import StatusBadge from "@/components/StatusBadge";
 import { useAuthStatus } from "@/hooks/useAuthStatus";
 import { getAppointments, type Appointment } from "@/data/appointmentStore";
 import { DEPARTMENT_CATALOG } from "@/data/siteContent";
-import { addDependent, getDependents, removeDependent, type Dependent } from "@/data/dependentStore";
-import { doc, getDoc } from "firebase/firestore";
+import { addDependent, getDependents, removeDependent, sanitizeDependentList, setDependents as setStoredDependents, type Dependent } from "@/data/dependentStore";
+import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import { firestore } from "@/lib/firebase";
 import { toast } from "sonner";
 
@@ -89,8 +89,25 @@ const PatientDashboard = () => {
           setProfileEmail(data.email);
         }
 
-        const firestoreDependents = Array.isArray(data.dependents) ? data.dependents : fallbackDependents;
-        setDependents([{ id: "self", name: data.name ?? selfName, relation: "Self", age: "Adult" }, ...firestoreDependents]);
+        if (Array.isArray(data.dependents)) {
+          const sanitizedDependents = sanitizeDependentList(data.dependents);
+          setStoredDependents(sanitizedDependents);
+          setDependents([{ id: "self", name: data.name ?? selfName, relation: "Self", age: "Adult" }, ...sanitizedDependents]);
+
+          if (sanitizedDependents.length !== data.dependents.length) {
+            await setDoc(
+              doc(firestore, "users", user.uid),
+              {
+                dependents: sanitizedDependents,
+                updatedAt: serverTimestamp(),
+              },
+              { merge: true },
+            );
+          }
+          return;
+        }
+
+        setDependents([{ id: "self", name: data.name ?? selfName, relation: "Self", age: "Adult" }, ...getDependents()]);
       } catch {
         setDependents([{ id: "self", name: selfName, relation: "Self", age: "Adult" }, ...fallbackDependents]);
       }

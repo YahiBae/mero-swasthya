@@ -10,7 +10,7 @@ import { updateEmail, updateProfile } from "firebase/auth";
 import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import { firebaseAuth, firestore } from "@/lib/firebase";
 import { useAuthStatus } from "@/hooks/useAuthStatus";
-import { addDependent, getDependents, removeDependent, setDependents, type Dependent } from "@/data/dependentStore";
+import { addDependent, getDependents, removeDependent, sanitizeDependentList, setDependents, type Dependent } from "@/data/dependentStore";
 
 interface ProfilePageProps {
   role: "patient" | "provider";
@@ -80,8 +80,20 @@ const ProfilePage = ({ role }: ProfilePageProps) => {
           setPhone(data.phone);
         }
         if (Array.isArray(data.dependents)) {
-          setDependentsState(data.dependents);
-          setDependents(data.dependents);
+          const sanitizedDependents = sanitizeDependentList(data.dependents);
+          setDependents(sanitizedDependents);
+          setDependentsState(getDependents());
+
+          if (sanitizedDependents.length !== data.dependents.length) {
+            await setDoc(
+              doc(firestore, "users", currentUser.uid),
+              {
+                dependents: sanitizedDependents,
+                updatedAt: serverTimestamp(),
+              },
+              { merge: true },
+            );
+          }
         }
       } catch {
         // Ignore remote load issues and keep local fallback.
@@ -94,7 +106,7 @@ const ProfilePage = ({ role }: ProfilePageProps) => {
   const persistUserRecord = async (nextProfile: { name: string; email: string; phone: string }, nextDependents: Dependent[]) => {
     localStorage.setItem(storageKey, JSON.stringify(nextProfile));
     setDependents(nextDependents);
-    setDependentsState(nextDependents);
+    setDependentsState(getDependents());
 
     const currentUser = firebaseAuth?.currentUser;
     if (!currentUser || !firestore) {
