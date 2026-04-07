@@ -11,6 +11,8 @@ import Hospitals from "./pages/Hospitals";
 import Clinics from "./pages/Clinics";
 import Doctors from "./pages/Doctors";
 import Departments from "./pages/Departments";
+import EmergencyService from "./pages/EmergencyService";
+import Diagnostics from "./pages/Diagnostics";
 import HospitalDetails from "./pages/HospitalDetails";
 import ClinicDetails from "./pages/ClinicDetails";
 import DoctorDetails from "./pages/DoctorDetails";
@@ -41,6 +43,8 @@ const App = () => (
           <Route path="/clinics/:id" element={<ClinicDetails />} />
           <Route path="/doctors" element={<Doctors />} />
           <Route path="/departments" element={<Departments />} />
+          <Route path="/emergency" element={<EmergencyService />} />
+          <Route path="/diagnostics" element={<Diagnostics />} />
           <Route path="/doctors/:id" element={<DoctorDetails />} />
           {/* Patient Dashboard */}
           <Route path="/dashboard" element={<PatientDashboard />} />

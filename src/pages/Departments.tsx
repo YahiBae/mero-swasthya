@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { ArrowRight, Building2, Search, Stethoscope } from "lucide-react";
+import { ArrowRight, Building2, Search, ShieldCheck, Siren, Stethoscope, TestTube2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -26,7 +26,10 @@ const Departments = () => {
     return DEPARTMENT_CATALOG.map((dept) => ({
       name: dept.en,
       nepali: dept.np,
-      doctorCount: doctors.filter((d) => d.specialty.toLowerCase().includes(dept.en.toLowerCase())).length,
+      doctorCount: doctors.filter((d) => {
+        const specialty = d.specialty.toLowerCase();
+        return dept.keywords.some((keyword) => specialty.includes(keyword));
+      }).length,
     }));
   }, []);
 
@@ -63,6 +66,21 @@ const Departments = () => {
               className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
             />
           </div>
+
+          <div className="mt-4 grid gap-3 md:grid-cols-3">
+            <div className="rounded-xl border border-border bg-background p-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-primary">Hospital Service</p>
+              <p className="mt-1 text-sm text-muted-foreground">In-patient and specialist consultation support.</p>
+            </div>
+            <div className="rounded-xl border border-border bg-background p-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-primary">Emergency 24/7</p>
+              <p className="mt-1 text-sm text-muted-foreground">Critical care and quick triage departments.</p>
+            </div>
+            <div className="rounded-xl border border-border bg-background p-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-primary">Diagnostics</p>
+              <p className="mt-1 text-sm text-muted-foreground">Pathology and imaging support for follow-up treatment.</p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -83,7 +101,7 @@ const Departments = () => {
                 </div>
               </div>
               <div className="mt-4">
-                <Link to="/doctors">
+                <Link to={`/doctors?department=${encodeURIComponent(dept.name)}`}>
                   <Button size="sm" className="w-full rounded-xl gap-2">
                     Consult Now <ArrowRight className="h-4 w-4" />
                   </Button>
@@ -116,11 +134,24 @@ const Departments = () => {
                 <Building2 className="h-4 w-4" /> Book Hospital Appointment
               </Button>
             </Link>
+            <Link to="/emergency">
+              <Button variant="outline" className="gap-2 rounded-xl">
+                <Siren className="h-4 w-4" /> Emergency Service 24/7
+              </Button>
+            </Link>
+            <Link to="/diagnostics">
+              <Button variant="outline" className="gap-2 rounded-xl">
+                <TestTube2 className="h-4 w-4" /> Diagnostics Booking
+              </Button>
+            </Link>
             <Link to="/doctors">
               <Button className="gap-2 rounded-xl">
                 <Stethoscope className="h-4 w-4" /> Book Doctor Appointment
               </Button>
             </Link>
+            <Button variant="outline" className="gap-2 rounded-xl" disabled>
+              <ShieldCheck className="h-4 w-4" /> Verified Specialists
+            </Button>
           </div>
         </div>
       </section>

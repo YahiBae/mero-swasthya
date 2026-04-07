@@ -1,17 +1,24 @@
 import { useState, useEffect, useMemo } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import DoctorCard from "@/components/DoctorCard";
 import ListingFilters from "@/components/ListingFilters";
 import CardSkeleton from "@/components/CardSkeleton";
 import { doctors, locations, specializations } from "@/data/mockData";
+import { DEPARTMENT_CATALOG } from "@/data/siteContent";
 
 const Doctors = () => {
+  const [params] = useSearchParams();
+  const departmentFromQuery = params.get("department") || "";
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [location, setLocation] = useState("");
-  const [specialty, setSpecialty] = useState("");
+  const [specialty, setSpecialty] = useState(departmentFromQuery);
+
+  useEffect(() => {
+    setSpecialty(departmentFromQuery);
+  }, [departmentFromQuery]);
 
   useEffect(() => {
     const t = setTimeout(() => setLoading(false), 800);
@@ -22,7 +29,12 @@ const Doctors = () => {
     return doctors.filter((d) => {
       const matchSearch = !search || d.name.toLowerCase().includes(search.toLowerCase()) || d.hospital.toLowerCase().includes(search.toLowerCase());
       const matchLocation = !location || d.city === location;
-      const matchSpec = !specialty || d.specialty.toLowerCase().includes(specialty.toLowerCase());
+      const mappedDepartment = DEPARTMENT_CATALOG.find((item) => item.en.toLowerCase() === specialty.toLowerCase());
+      const matchSpec = !specialty
+        ? true
+        : mappedDepartment
+          ? mappedDepartment.keywords.some((keyword) => d.specialty.toLowerCase().includes(keyword))
+          : d.specialty.toLowerCase().includes(specialty.toLowerCase());
       return matchSearch && matchLocation && matchSpec;
     });
   }, [search, location, specialty]);

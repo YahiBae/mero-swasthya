@@ -14,6 +14,8 @@ const navLinks = [
   { label: "Clinics", path: "/clinics" },
   { label: "Doctors", path: "/doctors" },
   { label: "Departments", path: "/departments" },
+  { label: "Emergency", path: "/emergency" },
+  { label: "Diagnostics", path: "/diagnostics" },
   { label: "Dashboard", path: "/dashboard" },
 ];
 
