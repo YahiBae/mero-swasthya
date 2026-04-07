@@ -1,4 +1,4 @@
-import { useParams, Link, useSearchParams } from "react-router-dom";
+import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
 import { MapPin, Star, Clock, Banknote, GraduationCap, Languages, Calendar, ArrowLeft, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
@@ -6,13 +6,17 @@ import Footer from "@/components/Footer";
 import { doctors, hospitals } from "@/data/mockData";
 import { useEffect, useState } from "react";
 import BookAppointmentModal from "@/components/BookAppointmentModal";
+import { useAuthStatus } from "@/hooks/useAuthStatus";
+import { toast } from "sonner";
 
 const DoctorDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const doctor = doctors.find((d) => d.id === Number(id));
   const [activeTab, setActiveTab] = useState<"overview" | "schedule" | "qualifications">("overview");
   const [bookingOpen, setBookingOpen] = useState(false);
+  const { isAuthenticated } = useAuthStatus();
 
   useEffect(() => {
     if (searchParams.get("book") !== "1") {
@@ -111,7 +115,18 @@ const DoctorDetails = () => {
                 <p className="text-sm text-muted-foreground mb-4">Schedule a visit with {doctor.name}.</p>
                 <p className="text-sm text-muted-foreground mb-1">Consultation Fee</p>
                 <p className="text-2xl font-bold text-foreground mb-4">Rs. {doctor.fee}</p>
-                <Button className="w-full rounded-xl" size="lg" onClick={() => setBookingOpen(true)}>
+                <Button
+                  className="w-full rounded-xl"
+                  size="lg"
+                  onClick={() => {
+                    if (!isAuthenticated) {
+                      toast.error("Please login or register to book an appointment.");
+                      navigate("/login");
+                      return;
+                    }
+                    setBookingOpen(true);
+                  }}
+                >
                   Book Now
                 </Button>
               </div>

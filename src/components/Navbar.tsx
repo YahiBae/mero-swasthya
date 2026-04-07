@@ -2,6 +2,10 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuthStatus } from "@/hooks/useAuthStatus";
+import { firebaseAuth } from "@/lib/firebase";
+import { signOut } from "firebase/auth";
+import { toast } from "sonner";
 
 const navLinks = [
   { label: "Home", path: "/" },
@@ -15,6 +19,16 @@ const navLinks = [
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
+  const { isAuthenticated, user } = useAuthStatus();
+
+  const handleLogout = async () => {
+    if (!firebaseAuth) {
+      return;
+    }
+    await signOut(firebaseAuth);
+    toast.success("Logged out successfully.");
+    setMobileOpen(false);
+  };
 
   return (
     <nav className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
@@ -44,12 +58,21 @@ const Navbar = () => {
         </div>
 
         <div className="hidden items-center gap-2 md:flex">
-          <Link to="/login">
-            <Button variant="outline" size="sm">Login</Button>
-          </Link>
-          <Link to="/register">
-            <Button size="sm">Register</Button>
-          </Link>
+          {isAuthenticated ? (
+            <>
+              <span className="text-xs text-muted-foreground max-w-[180px] truncate">{user?.email}</span>
+              <Button variant="outline" size="sm" onClick={handleLogout}>Logout</Button>
+            </>
+          ) : (
+            <>
+              <Link to="/login">
+                <Button variant="outline" size="sm">Login</Button>
+              </Link>
+              <Link to="/register">
+                <Button size="sm">Register</Button>
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile toggle */}
@@ -79,12 +102,18 @@ const Navbar = () => {
             </Link>
           ))}
           <div className="mt-3 flex gap-2">
-            <Link to="/login" className="flex-1">
-              <Button variant="outline" size="sm" className="w-full">Login</Button>
-            </Link>
-            <Link to="/register" className="flex-1">
-              <Button size="sm" className="w-full">Register</Button>
-            </Link>
+            {isAuthenticated ? (
+              <Button variant="outline" size="sm" className="w-full" onClick={handleLogout}>Logout</Button>
+            ) : (
+              <>
+                <Link to="/login" className="flex-1" onClick={() => setMobileOpen(false)}>
+                  <Button variant="outline" size="sm" className="w-full">Login</Button>
+                </Link>
+                <Link to="/register" className="flex-1" onClick={() => setMobileOpen(false)}>
+                  <Button size="sm" className="w-full">Register</Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}

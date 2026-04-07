@@ -1,4 +1,5 @@
 import { doctors, hospitals, clinics } from "./mockData";
+import { firebaseAuth } from "@/lib/firebase";
 
 export type AppointmentStatus = "confirmed" | "cancelled" | "completed" | "pending";
 
@@ -31,6 +32,10 @@ export function getAppointments(): Appointment[] {
 }
 
 export function saveAppointment(appointment: Omit<Appointment, "id" | "createdAt" | "status">): Appointment {
+  if (!firebaseAuth?.currentUser) {
+    throw new Error("AUTH_REQUIRED");
+  }
+
   const newAppt: Appointment = {
     ...appointment,
     id: generateId(),

@@ -6,10 +6,13 @@ import Footer from "@/components/Footer";
 import DoctorCard from "@/components/DoctorCard";
 import { hospitals, doctors } from "@/data/mockData";
 import { useState } from "react";
+import { useAuthStatus } from "@/hooks/useAuthStatus";
+import { toast } from "sonner";
 
 const HospitalDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuthStatus();
   const hospital = hospitals.find((h) => h.id === Number(id));
   const [activeTab, setActiveTab] = useState<"overview" | "departments" | "doctors">("overview");
 
@@ -105,6 +108,11 @@ const HospitalDetails = () => {
                   className="mt-6 w-full rounded-xl"
                   onClick={() => {
                     if (hospitalDoctors.length === 0) {
+                      return;
+                    }
+                    if (!isAuthenticated) {
+                      toast.error("Please login or register to book an appointment.");
+                      navigate("/login");
                       return;
                     }
                     navigate(`/doctors/${hospitalDoctors[0].id}?book=1`);

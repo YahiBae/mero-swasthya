@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { saveAppointment } from "@/data/appointmentStore";
 import { Doctor, hospitals, clinics } from "@/data/mockData";
 import { useNavigate } from "react-router-dom";
+import { useAuthStatus } from "@/hooks/useAuthStatus";
 
 interface BookAppointmentModalProps {
   open: boolean;
@@ -28,6 +29,7 @@ const BookAppointmentModal = ({ open, onClose, doctor }: BookAppointmentModalPro
   const [problem, setProblem] = useState("");
   const [step, setStep] = useState<"form" | "success">("form");
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuthStatus();
 
   const selectedDayName = date ? dayNames[date.getDay()] : null;
   const availableSlots = selectedDayName
@@ -47,20 +49,33 @@ const BookAppointmentModal = ({ open, onClose, doctor }: BookAppointmentModalPro
     doctor.hospital;
 
   const handleSubmit = () => {
+    if (!isAuthenticated) {
+      toast.error("Please login or register to book an appointment.");
+      handleClose();
+      navigate("/login");
+      return;
+    }
+
     if (!date || !selectedSlot || !patientName.trim()) {
       toast.error("Please fill all required fields.");
       return;
     }
-    saveAppointment({
-      patientName: patientName.trim(),
-      problemDescription: problem.trim(),
-      doctorId: doctor.id,
-      doctorName: doctor.name,
-      hospitalOrClinic,
-      date: format(date, "yyyy-MM-dd"),
-      timeSlot: selectedSlot,
-    });
-    setStep("success");
+    try {
+      saveAppointment({
+        patientName: patientName.trim(),
+        problemDescription: problem.trim(),
+        doctorId: doctor.id,
+        doctorName: doctor.name,
+        hospitalOrClinic,
+        date: format(date, "yyyy-MM-dd"),
+        timeSlot: selectedSlot,
+      });
+      setStep("success");
+    } catch {
+      toast.error("Please login or register to book an appointment.");
+      handleClose();
+      navigate("/login");
+    }
   };
 
   const handleClose = () => {
@@ -177,6 +192,12 @@ const BookAppointmentModal = ({ open, onClose, doctor }: BookAppointmentModalPro
                   <p className="text-muted-foreground">Time: {selectedSlot}</p>
                   <p className="text-muted-foreground">Fee: Rs. {doctor.fee}</p>
                 </div>
+              )}
+
+              {!isAuthenticated && (
+                <p className="rounded-xl bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                  You must login or register before booking.
+                </p>
               )}
 
               <Button className="w-full rounded-xl" size="lg" onClick={handleSubmit}>
