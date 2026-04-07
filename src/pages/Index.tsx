@@ -1,5 +1,15 @@
 import { Link } from "react-router-dom";
-import { Search, MapPin, Stethoscope, Building2, ArrowRight, Heart, Shield, Users, Clock } from "lucide-react";
+import {
+  Search,
+  MapPin,
+  Stethoscope,
+  Building2,
+  Users,
+  Clock,
+  ShieldCheck,
+  CalendarCheck2,
+  PhoneCall,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -9,33 +19,155 @@ import DoctorCard from "@/components/DoctorCard";
 import { hospitals, clinics, doctors, specializations, locations } from "@/data/mockData";
 
 const HeroSection = () => (
-  <section className="hero-gradient relative overflow-hidden py-20 lg:py-28">
-    <div className="container mx-auto px-4 text-center">
-      <h1 className="mx-auto max-w-3xl text-4xl font-extrabold leading-tight text-foreground md:text-5xl lg:text-6xl">
-        Book Hospital & Clinic Appointments{" "}
-        <span className="text-gradient">Across Nepal</span>
-      </h1>
-      <p className="mx-auto mt-4 max-w-xl text-lg text-muted-foreground">
-        Find doctors, clinics, and hospitals in one place. Trusted care from experienced professionals.
-      </p>
-      <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-        <Link to="/doctors">
-          <Button size="lg" className="gap-2 rounded-full px-8">
-            <Stethoscope className="h-4 w-4" /> Book Appointment
-          </Button>
-        </Link>
-        <Link to="/services">
-          <Button variant="outline" size="lg" className="gap-2 rounded-full px-8">
-            Explore Services <ArrowRight className="h-4 w-4" />
-          </Button>
-        </Link>
+  <section className="hero-gradient relative overflow-hidden py-16 lg:py-22">
+    <div className="container mx-auto grid gap-8 px-4 lg:grid-cols-2 lg:items-center">
+      <div>
+        <p className="inline-flex rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+          Nepal Healthcare Booking Platform
+        </p>
+        <h1 className="mt-4 max-w-2xl text-4xl font-extrabold leading-tight text-foreground md:text-5xl">
+          Hospital Appointment in Minutes, Not Days
+        </h1>
+        <p className="mt-4 max-w-xl text-lg text-muted-foreground">
+          Search departments, pick available doctors, confirm your slot, and track every appointment from one dashboard.
+        </p>
+        <div className="mt-8 flex flex-wrap gap-3">
+          <Link to="/departments?org=true">
+            <Button size="lg" className="gap-2 rounded-full px-8">
+              <Building2 className="h-4 w-4" /> Select Department
+            </Button>
+          </Link>
+          <Link to="/doctors">
+            <Button variant="outline" size="lg" className="gap-2 rounded-full px-8">
+              <Stethoscope className="h-4 w-4" /> Find Doctor
+            </Button>
+          </Link>
+        </div>
+      </div>
+
+      <div className="card-shadow rounded-2xl bg-card p-5 md:p-6">
+        <h3 className="text-lg font-semibold text-foreground">Quick Search</h3>
+        <p className="mt-1 text-sm text-muted-foreground">Pick your location and specialization to begin.</p>
+
+        <div className="mt-4 grid gap-3">
+          <div className="flex items-center gap-2 rounded-xl bg-muted px-4 py-3">
+            <MapPin className="h-4 w-4 text-muted-foreground" />
+            <select className="w-full bg-transparent text-sm text-foreground outline-none">
+              <option value="">Select Location</option>
+              {locations.map((l) => <option key={l} value={l}>{l}</option>)}
+            </select>
+          </div>
+          <div className="flex items-center gap-2 rounded-xl bg-muted px-4 py-3">
+            <Stethoscope className="h-4 w-4 text-muted-foreground" />
+            <select className="w-full bg-transparent text-sm text-foreground outline-none">
+              <option value="">Specialization</option>
+              {specializations.map((s) => <option key={s} value={s}>{s}</option>)}
+            </select>
+          </div>
+          <div className="flex items-center gap-2 rounded-xl bg-muted px-4 py-3">
+            <Search className="h-4 w-4 text-muted-foreground" />
+            <input placeholder="Hospital / Clinic / Doctor" className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground" />
+          </div>
+          <Link to="/departments?org=true">
+            <Button className="w-full gap-2 rounded-xl">
+              <Search className="h-4 w-4" /> Start Booking
+            </Button>
+          </Link>
+        </div>
       </div>
     </div>
   </section>
 );
 
+const QuickAccess = () => (
+  <section className="container mx-auto px-4 py-10">
+    <div className="grid gap-4 md:grid-cols-3">
+      <Link to="/login" className="card-shadow rounded-2xl bg-card p-5 transition-all hover:-translate-y-0.5 hover:card-shadow-hover">
+        <p className="text-sm text-muted-foreground">Quick Login</p>
+        <h3 className="mt-1 text-lg font-semibold text-foreground">Patient Portal</h3>
+        <p className="mt-2 text-sm text-muted-foreground">Track bookings, prescriptions, and follow-ups.</p>
+      </Link>
+      <Link to="/provider" className="card-shadow rounded-2xl bg-card p-5 transition-all hover:-translate-y-0.5 hover:card-shadow-hover">
+        <p className="text-sm text-muted-foreground">Partner Access</p>
+        <h3 className="mt-1 text-lg font-semibold text-foreground">Hospital / Clinic</h3>
+        <p className="mt-2 text-sm text-muted-foreground">Manage schedules and appointment requests.</p>
+      </Link>
+      <Link to="/doctors" className="card-shadow rounded-2xl bg-card p-5 transition-all hover:-translate-y-0.5 hover:card-shadow-hover">
+        <p className="text-sm text-muted-foreground">Doctor Access</p>
+        <h3 className="mt-1 text-lg font-semibold text-foreground">Consult Dashboard</h3>
+        <p className="mt-2 text-sm text-muted-foreground">Review upcoming consultations and patient notes.</p>
+      </Link>
+    </div>
+  </section>
+);
+
+const departments = [
+  "General Practice",
+  "Internal Medicine",
+  "Cardiology",
+  "Pediatrics",
+  "Dermatology",
+  "Orthopedics",
+  "ENT",
+  "Neurology",
+];
+
+const DepartmentHighlights = () => (
+  <section className="container mx-auto px-4 py-10">
+    <div className="mb-6 flex items-end justify-between">
+      <div>
+        <h2 className="text-3xl font-bold text-foreground">Book by Department</h2>
+        <p className="mt-1 text-muted-foreground">Choose a department first, then pick a doctor and slot.</p>
+      </div>
+      <Link to="/departments?org=true" className="text-sm font-medium text-primary hover:underline">
+        View All Departments →
+      </Link>
+    </div>
+
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {departments.map((name) => (
+        <Link key={name} to="/departments?org=true" className="card-shadow rounded-2xl bg-card p-4 transition-all hover:-translate-y-0.5 hover:card-shadow-hover">
+          <div className="flex items-center justify-between">
+            <h3 className="font-semibold text-card-foreground">{name}</h3>
+            <Stethoscope className="h-4 w-4 text-primary" />
+          </div>
+          <p className="mt-2 text-sm text-muted-foreground">Consult now</p>
+        </Link>
+      ))}
+    </div>
+  </section>
+);
+
+const HowItWorks = () => {
+  const steps = [
+    "Select department",
+    "Select doctor and date",
+    "Select time slot",
+    "Verify mobile number",
+    "Provide personal details",
+    "Choose payment method",
+    "Get confirmation",
+  ];
+
+  return (
+    <section className="container mx-auto px-4 py-10">
+      <div className="rounded-2xl bg-card p-6">
+        <h2 className="text-2xl font-bold text-foreground">Follow These Easy Steps</h2>
+        <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {steps.map((step, index) => (
+            <div key={step} className="rounded-xl border border-border bg-background p-4">
+              <p className="text-xs font-semibold text-primary">Step {index + 1}</p>
+              <p className="mt-1 text-sm text-foreground">{step}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
 const SearchBar = () => (
-  <section className="container mx-auto -mt-8 px-4 relative z-10">
+  <section className="container mx-auto -mt-4 px-4 relative z-10">
     <div className="card-shadow rounded-2xl bg-card p-4 md:p-6">
       <div className="grid gap-3 md:grid-cols-4">
         <div className="flex items-center gap-2 rounded-xl bg-muted px-4 py-3">
@@ -67,13 +199,15 @@ const SearchBar = () => (
 const stats = [
   { icon: Users, label: "Active Patients", value: "50,000+" },
   { icon: Building2, label: "Partner Hospitals", value: "200+" },
-  { icon: Stethoscope, label: "Verified Doctors", value: "1,500+" },
-  { icon: Clock, label: "Appointments/Day", value: "3,000+" },
+  { icon: CalendarCheck2, label: "Booked Appointments", value: "2M+" },
+  { icon: ShieldCheck, label: "Verified Doctors", value: "1,500+" },
+  { icon: Clock, label: "Avg. Confirmation", value: "< 3 min" },
+  { icon: PhoneCall, label: "Support", value: "24/7" },
 ];
 
 const StatsSection = () => (
   <section className="container mx-auto px-4 py-16">
-    <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+    <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
       {stats.map((s) => (
         <div key={s.label} className="flex flex-col items-center gap-2 rounded-2xl bg-secondary/50 p-6 text-center">
           <s.icon className="h-6 w-6 text-primary" />
@@ -85,49 +219,16 @@ const StatsSection = () => (
   </section>
 );
 
-const services = [
-  { icon: Heart, title: "Primary Care", desc: "Your first step toward a healthier life. Ongoing care and medical advice you can trust." },
-  { icon: Shield, title: "Dental Care", desc: "Gentle, expert dental services for every smile — from cleanings to complex procedures." },
-  { icon: Stethoscope, title: "Vaccinations", desc: "Protecting you and your family with essential and seasonal immunizations." },
-  { icon: Users, title: "Mental Health", desc: "Confidential therapy and psychological support to help you feel better emotionally." },
-];
-
-const ServicesPreview = () => (
-  <section className="container mx-auto px-4 py-16">
-    <div className="mb-10 text-center">
-      <h2 className="text-3xl font-bold text-foreground">The Best Quality Service You Can Get</h2>
-      <p className="mt-2 text-muted-foreground">Trusted care from experienced professionals — accessible and compassionate.</p>
-    </div>
-    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-      {services.map((s) => (
-        <div key={s.title} className="card-shadow rounded-2xl bg-card p-6 text-center transition-all duration-300 hover:card-shadow-hover hover:-translate-y-1">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-secondary">
-            <s.icon className="h-6 w-6 text-primary" />
-          </div>
-          <h3 className="font-semibold text-card-foreground">{s.title}</h3>
-          <p className="mt-2 text-sm text-muted-foreground">{s.desc}</p>
-        </div>
-      ))}
-    </div>
-    <div className="mt-8 text-center">
-      <Link to="/services">
-        <Button variant="outline" className="gap-2 rounded-full">
-          View All Services <ArrowRight className="h-4 w-4" />
-        </Button>
-      </Link>
-    </div>
-  </section>
-);
-
 const Index = () => (
   <div className="min-h-screen">
     <Navbar />
     <HeroSection />
+    <QuickAccess />
     <SearchBar />
+    <DepartmentHighlights />
+    <HowItWorks />
     <StatsSection />
-    <ServicesPreview />
 
-    {/* Featured Hospitals */}
     <section className="container mx-auto px-4 py-16">
       <div className="mb-8 flex items-end justify-between">
         <div>
@@ -143,7 +244,6 @@ const Index = () => (
       </div>
     </section>
 
-    {/* Featured Clinics */}
     <section className="bg-muted/30 py-16">
       <div className="container mx-auto px-4">
         <div className="mb-8 flex items-end justify-between">
@@ -161,7 +261,6 @@ const Index = () => (
       </div>
     </section>
 
-    {/* Top Doctors */}
     <section className="container mx-auto px-4 py-16">
       <div className="mb-8 flex items-end justify-between">
         <div>
