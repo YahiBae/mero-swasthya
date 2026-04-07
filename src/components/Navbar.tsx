@@ -37,9 +37,11 @@ const Navbar = () => {
     <nav className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link to="/" className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary">
-            <span className="text-sm font-bold text-primary-foreground">M</span>
-          </div>
+          <img
+            src="/favicon.svg"
+            alt="Mero Swasthya logo"
+            className="h-8 w-8 rounded-full object-cover"
+          />
           <span className="text-lg font-bold text-foreground">Mero Swasthya</span>
         </Link>
 

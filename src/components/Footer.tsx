@@ -8,9 +8,11 @@ const Footer = () => (
       <div className="grid gap-8 md:grid-cols-4 lg:grid-cols-5">
         <div>
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary">
-              <span className="text-sm font-bold text-primary-foreground">M</span>
-            </div>
+            <img
+              src="/favicon.svg"
+              alt="Mero Swasthya logo"
+              className="h-8 w-8 rounded-full object-cover"
+            />
             <span className="text-lg font-bold">Mero Swasthya</span>
           </div>
           <p className="mt-3 text-sm opacity-70">
