@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import {
   CalendarDays,
   CheckCircle,
+  ChevronLeft,
+  ChevronRight,
   Clock,
   MessageSquare,
   MonitorPlay,
@@ -53,6 +55,7 @@ const PatientDashboard = () => {
   const [newDependentRelation, setNewDependentRelation] = useState("Child");
   const [newDependentAge, setNewDependentAge] = useState("");
   const [testimonialIndex, setTestimonialIndex] = useState(0);
+  const [isCarouselPaused, setIsCarouselPaused] = useState(false);
 
   useEffect(() => {
     setAppointments(getAppointments());
@@ -183,11 +186,23 @@ const PatientDashboard = () => {
   ];
 
   useEffect(() => {
+    if (isCarouselPaused) {
+      return;
+    }
+
     const interval = setInterval(() => {
       setTestimonialIndex((current) => (current + 1) % testimonials.length);
     }, 4500);
     return () => clearInterval(interval);
-  }, [testimonials.length]);
+  }, [isCarouselPaused, testimonials.length]);
+
+  const handlePreviousTestimonial = () => {
+    setTestimonialIndex((current) => (current - 1 + testimonials.length) % testimonials.length);
+  };
+
+  const handleNextTestimonial = () => {
+    setTestimonialIndex((current) => (current + 1) % testimonials.length);
+  };
 
   const refreshDependents = () => {
     const selfName = displayName || user?.displayName || user?.email?.split("@")[0] || "You";
@@ -383,8 +398,32 @@ const PatientDashboard = () => {
             </section>
 
             <section className="rounded-2xl bg-card p-4 md:p-6">
-              <h3 className="text-2xl font-bold text-foreground">What Our Patients Are Saying</h3>
-              <div className="mt-4 overflow-hidden rounded-xl border border-border bg-background">
+              <div className="flex items-center justify-between gap-3">
+                <h3 className="text-2xl font-bold text-foreground">What Our Patients Are Saying</h3>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handlePreviousTestimonial}
+                    className="rounded-full border border-border p-1.5 text-muted-foreground transition hover:border-primary hover:text-primary"
+                    aria-label="Previous testimonial"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleNextTestimonial}
+                    className="rounded-full border border-border p-1.5 text-muted-foreground transition hover:border-primary hover:text-primary"
+                    aria-label="Next testimonial"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+              <div
+                className="mt-4 overflow-hidden rounded-xl border border-border bg-background"
+                onMouseEnter={() => setIsCarouselPaused(true)}
+                onMouseLeave={() => setIsCarouselPaused(false)}
+              >
                 <div
                   className="flex transition-transform duration-500 ease-out"
                   style={{ transform: `translateX(-${testimonialIndex * 100}%)` }}
