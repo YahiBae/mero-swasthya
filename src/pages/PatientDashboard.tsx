@@ -52,6 +52,7 @@ const PatientDashboard = () => {
   const [newDependentName, setNewDependentName] = useState("");
   const [newDependentRelation, setNewDependentRelation] = useState("Child");
   const [newDependentAge, setNewDependentAge] = useState("");
+  const [testimonialIndex, setTestimonialIndex] = useState(0);
 
   useEffect(() => {
     setAppointments(getAppointments());
@@ -162,6 +163,31 @@ const PatientDashboard = () => {
       description: "Get a digital prescription and access it anytime.",
     },
   ];
+
+  const testimonials = [
+    {
+      quote: "Video consultation was smooth and I got prescription quickly.",
+      name: "Anita Karki",
+      city: "Kathmandu",
+    },
+    {
+      quote: "Booking for my family became much easier after adding dependents.",
+      name: "Rohit Shrestha",
+      city: "Lalitpur",
+    },
+    {
+      quote: "Support was responsive and the doctor joined exactly on schedule.",
+      name: "Puja Bhandari",
+      city: "Bhaktapur",
+    },
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTestimonialIndex((current) => (current + 1) % testimonials.length);
+    }, 4500);
+    return () => clearInterval(interval);
+  }, [testimonials.length]);
 
   const refreshDependents = () => {
     const selfName = displayName || user?.displayName || user?.email?.split("@")[0] || "You";
@@ -334,39 +360,59 @@ const PatientDashboard = () => {
               </aside>
             </section>
 
-            <section className="rounded-2xl bg-card p-4 md:p-6">
-              <div className="grid gap-6 lg:grid-cols-2 lg:items-center">
-                <div>
-                  <p className="text-sm font-semibold text-primary">Mero Swasthya App</p>
-                  <h3 className="mt-2 text-3xl font-bold text-foreground">Download our mobile app</h3>
-                  <p className="mt-2 text-muted-foreground">Access consultation, follow-up, and appointment updates from anywhere.</p>
-                  <div className="mt-4 flex gap-2">
-                    <input placeholder="Enter phone number" className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none" />
-                    <Button className="rounded-lg">Send Link</Button>
+            <section className="rounded-2xl bg-[linear-gradient(120deg,#0f172a,#1d4ed8)] px-4 py-4 text-white md:px-6">
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                <div className="flex items-start gap-3">
+                  <div className="rounded-xl bg-white/15 p-2">
+                    <Smartphone className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-white/80">Mero Swasthya App</p>
+                    <h3 className="text-lg font-bold md:text-xl">Download the app for instant consultation and follow-ups</h3>
+                    <p className="mt-1 text-sm text-white/80">Get appointment reminders and prescriptions on your phone.</p>
                   </div>
                 </div>
-                <div className="rounded-xl bg-muted p-6 text-center">
-                  <Smartphone className="mx-auto h-10 w-10 text-primary" />
-                  <p className="mt-2 text-sm text-muted-foreground">Android and iOS app links can be connected here.</p>
+                <div className="flex w-full flex-col gap-2 sm:flex-row lg:w-auto">
+                  <input
+                    placeholder="Enter phone number"
+                    className="w-full rounded-lg border border-white/25 bg-white/10 px-3 py-2 text-sm text-white placeholder:text-white/70 outline-none sm:min-w-[220px]"
+                  />
+                  <Button className="rounded-lg bg-white text-slate-900 hover:bg-white/90">Send App Link</Button>
                 </div>
               </div>
             </section>
 
             <section className="rounded-2xl bg-card p-4 md:p-6">
               <h3 className="text-2xl font-bold text-foreground">What Our Patients Are Saying</h3>
-              <div className="mt-4 grid gap-4 md:grid-cols-3">
-                <div className="rounded-xl border border-border bg-background p-4">
-                  <p className="text-sm text-muted-foreground">"Easy to book and doctor joined quickly. Very helpful service."</p>
-                  <p className="mt-3 font-semibold text-foreground">Ramesh Thapa</p>
+              <div className="mt-4 overflow-hidden rounded-xl border border-border bg-background">
+                <div
+                  className="flex transition-transform duration-500 ease-out"
+                  style={{ transform: `translateX(-${testimonialIndex * 100}%)` }}
+                >
+                  {testimonials.map((item) => (
+                    <article key={item.name} className="w-full shrink-0 p-5 md:p-6">
+                      <p className="text-sm leading-relaxed text-muted-foreground">"{item.quote}"</p>
+                      <div className="mt-4 flex items-center justify-between">
+                        <div>
+                          <p className="font-semibold text-foreground">{item.name}</p>
+                          <p className="text-xs text-muted-foreground">{item.city}</p>
+                        </div>
+                        <span className="text-xs font-semibold text-primary">{testimonialIndex + 1}/{testimonials.length}</span>
+                      </div>
+                    </article>
+                  ))}
                 </div>
-                <div className="rounded-xl border border-border bg-background p-4">
-                  <p className="text-sm text-muted-foreground">"Great for family members who need regular follow-up from home."</p>
-                  <p className="mt-3 font-semibold text-foreground">Sita Shrestha</p>
-                </div>
-                <div className="rounded-xl border border-border bg-background p-4">
-                  <p className="text-sm text-muted-foreground">"Quick support and verified doctors made the process reliable."</p>
-                  <p className="mt-3 font-semibold text-foreground">Prakash Karki</p>
-                </div>
+              </div>
+              <div className="mt-3 flex items-center justify-center gap-2">
+                {testimonials.map((item, idx) => (
+                  <button
+                    key={item.name}
+                    type="button"
+                    onClick={() => setTestimonialIndex(idx)}
+                    className={`h-2.5 rounded-full transition-all ${idx === testimonialIndex ? "w-6 bg-primary" : "w-2.5 bg-muted-foreground/40"}`}
+                    aria-label={`Show testimonial ${idx + 1}`}
+                  />
+                ))}
               </div>
             </section>
 
