@@ -6,6 +6,23 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { doctors, specializations } from "@/data/mockData";
 
+const nepaliLabelMap: Record<string, string> = {
+  Cardiology: "मुटुरोग सम्बन्धी",
+  Neurology: "स्नायुशास्त्र",
+  Orthopedics: "हाडजोर्नी सेवा",
+  Dermatology: "चर्मरोग",
+  Pediatrics: "बालरोग सेवा",
+  Gynecology: "स्त्री तथा प्रसूति रोग",
+  Oncology: "क्यान्सर सेवा",
+  ENT: "नाक कान घाँटी",
+  Ophthalmology: "आँखा",
+  Dental: "दन्त सेवा",
+  "General Surgery": "साधारण शल्यक्रिया",
+  "Internal Medicine": "आन्तरिक चिकित्सा",
+  Gastroenterology: "पेट तथा कलेजो रोग",
+  Psychiatry: "मनोरोग",
+};
+
 const steps = [
   "Select a department",
   "Select a doctor and date",
@@ -24,6 +41,7 @@ const Departments = () => {
   const departmentData = useMemo(() => {
     return specializations.map((name) => ({
       name,
+      nepali: nepaliLabelMap[name] ?? "विशेषज्ञ सेवा",
       doctorCount: doctors.filter((d) => d.specialty.toLowerCase().includes(name.toLowerCase())).length,
     }));
   }, []);
@@ -65,14 +83,15 @@ const Departments = () => {
       </section>
 
       <section className="container mx-auto px-4 pb-8">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((dept) => (
-            <div key={dept.name} className="card-shadow rounded-2xl bg-card p-5">
+            <div key={dept.name} className="card-shadow rounded-2xl bg-card p-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <h3 className="font-semibold text-card-foreground">{dept.name}</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    {dept.doctorCount} doctors available
+                  <h3 className="text-sm font-semibold uppercase tracking-wide text-card-foreground">{dept.name}</h3>
+                  <p className="mt-0.5 text-xs text-muted-foreground">({dept.nepali})</p>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    {dept.doctorCount} Doctors
                   </p>
                 </div>
                 <div className="rounded-xl bg-secondary p-2">

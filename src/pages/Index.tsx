@@ -102,14 +102,14 @@ const QuickAccess = () => (
 );
 
 const departments = [
-  "General Practice",
-  "Internal Medicine",
-  "Cardiology",
-  "Pediatrics",
-  "Dermatology",
-  "Orthopedics",
-  "ENT",
-  "Neurology",
+  { en: "General Practice", np: "साधारण तथा आकस्मिक चिकित्सा" },
+  { en: "Internal Medicine", np: "आन्तरिक चिकित्सा" },
+  { en: "Cardiology", np: "मुटुरोग सम्बन्धी" },
+  { en: "Pediatrics", np: "बालरोग सेवा" },
+  { en: "Dermatology", np: "चर्मरोग" },
+  { en: "Orthopedics", np: "हाडजोर्नी सेवा" },
+  { en: "ENT", np: "नाक कान घाँटी" },
+  { en: "Neurology", np: "स्नायुशास्त्र" },
 ];
 
 const DepartmentHighlights = () => (
@@ -125,12 +125,13 @@ const DepartmentHighlights = () => (
     </div>
 
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      {departments.map((name) => (
-        <Link key={name} to="/departments?org=true" className="card-shadow rounded-2xl bg-card p-4 transition-all hover:-translate-y-0.5 hover:card-shadow-hover">
+      {departments.map((dept) => (
+        <Link key={dept.en} to="/departments?org=true" className="card-shadow rounded-2xl bg-card p-4 transition-all hover:-translate-y-0.5 hover:card-shadow-hover">
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-card-foreground">{name}</h3>
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-card-foreground">{dept.en}</h3>
             <Stethoscope className="h-4 w-4 text-primary" />
           </div>
+          <p className="mt-1 text-xs text-muted-foreground">({dept.np})</p>
           <p className="mt-2 text-sm text-muted-foreground">Consult now</p>
         </Link>
       ))}
