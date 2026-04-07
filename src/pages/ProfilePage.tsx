@@ -1,22 +1,32 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import DashboardSidebar from "@/components/DashboardSidebar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { UserCircle } from "lucide-react";
+import { UserCircle, UserPlus, Trash2, Users } from "lucide-react";
 import { updateEmail, updateProfile } from "firebase/auth";
-import { firebaseAuth } from "@/lib/firebase";
+import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
+import { firebaseAuth, firestore } from "@/lib/firebase";
+import { useAuthStatus } from "@/hooks/useAuthStatus";
+import { addDependent, getDependents, removeDependent, setDependents, type Dependent } from "@/data/dependentStore";
 
 interface ProfilePageProps {
   role: "patient" | "provider";
 }
 
 const ProfilePage = ({ role }: ProfilePageProps) => {
-  const storageKey = `mero_profile_${role}`;
+  const { user } = useAuthStatus();
+  const storageKey = useMemo(() => `mero_profile_${role}_${user?.uid ?? "guest"}`, [role, user?.uid]);
   const [name, setName] = useState(role === "patient" ? "Ram Bahadur" : "Dr. Rajesh Sharma");
   const [email, setEmail] = useState(role === "patient" ? "ram@example.com" : "dr.rajesh@hospital.com");
   const [phone, setPhone] = useState("+977-9841234567");
+  const [dependents, setDependentsState] = useState<Dependent[]>([]);
+  const [dependentOpen, setDependentOpen] = useState(false);
+  const [newDependentName, setNewDependentName] = useState("");
+  const [newDependentRelation, setNewDependentRelation] = useState("Child");
+  const [newDependentAge, setNewDependentAge] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
@@ -32,6 +42,8 @@ const ProfilePage = ({ role }: ProfilePageProps) => {
       }
     }
 
+    setDependentsState(getDependents());
+
     const currentUser = firebaseAuth?.currentUser;
     if (currentUser?.displayName) {
       setName(currentUser.displayName);
@@ -39,7 +51,104 @@ const ProfilePage = ({ role }: ProfilePageProps) => {
     if (currentUser?.email) {
       setEmail(currentUser.email);
     }
-  }, [storageKey]);
+
+    const loadRemoteProfile = async () => {
+      if (!currentUser || !firestore) {
+        return;
+      }
+
+      try {
+        const snapshot = await getDoc(doc(firestore, "users", currentUser.uid));
+        if (!snapshot.exists()) {
+          return;
+        }
+
+        const data = snapshot.data() as {
+          name?: string;
+          email?: string;
+          phone?: string;
+          dependents?: Dependent[];
+        };
+
+        if (data.name) {
+          setName(data.name);
+        }
+        if (data.email) {
+          setEmail(data.email);
+        }
+        if (data.phone) {
+          setPhone(data.phone);
+        }
+        if (Array.isArray(data.dependents)) {
+          setDependentsState(data.dependents);
+          setDependents(data.dependents);
+        }
+      } catch {
+        // Ignore remote load issues and keep local fallback.
+      }
+    };
+
+    void loadRemoteProfile();
+  }, [storageKey, role, user?.uid]);
+
+  const persistUserRecord = async (nextProfile: { name: string; email: string; phone: string }, nextDependents: Dependent[]) => {
+    localStorage.setItem(storageKey, JSON.stringify(nextProfile));
+    setDependents(nextDependents);
+    setDependentsState(nextDependents);
+
+    const currentUser = firebaseAuth?.currentUser;
+    if (!currentUser || !firestore) {
+      return;
+    }
+
+    await setDoc(
+      doc(firestore, "users", currentUser.uid),
+      {
+        ...nextProfile,
+        role,
+        dependents: nextDependents,
+        updatedAt: serverTimestamp(),
+      },
+      { merge: true },
+    );
+  };
+
+  const handleAddDependent = async () => {
+    if (!newDependentName.trim() || !newDependentAge.trim()) {
+      toast.error("Please enter dependent name and age.");
+      return;
+    }
+
+    const created = addDependent({
+      name: newDependentName.trim(),
+      relation: newDependentRelation.trim() || "Dependent",
+      age: newDependentAge.trim(),
+    });
+
+    const nextDependents = [...dependents, created];
+    try {
+      await persistUserRecord({ name, email, phone }, nextDependents);
+      toast.success("Dependent added successfully.");
+      setNewDependentName("");
+      setNewDependentRelation("Child");
+      setNewDependentAge("");
+      setDependentOpen(false);
+    } catch {
+      toast.error("Failed to save dependent.");
+    }
+  };
+
+  const handleRemoveDependent = async (id: string) => {
+    const nextDependents = dependents.filter((dependent) => dependent.id !== id);
+    removeDependent(id);
+
+    try {
+      await persistUserRecord({ name, email, phone }, nextDependents);
+      toast.success("Dependent removed.");
+    } catch {
+      toast.error("Failed to remove dependent.");
+    }
+  };
 
   const handleSave = async () => {
     const trimmedName = name.trim();
@@ -64,13 +173,13 @@ const ProfilePage = ({ role }: ProfilePageProps) => {
         }
       }
 
-      localStorage.setItem(
-        storageKey,
-        JSON.stringify({
+      await persistUserRecord(
+        {
           name: trimmedName,
           email: trimmedEmail,
           phone: trimmedPhone,
-        }),
+        },
+        dependents,
       );
 
       setName(trimmedName);
@@ -131,6 +240,40 @@ const ProfilePage = ({ role }: ProfilePageProps) => {
                   </div>
                 </div>
 
+                <div className="rounded-2xl border border-border bg-background p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="font-semibold text-foreground flex items-center gap-2">
+                        <Users className="h-4 w-4 text-primary" /> Dependents
+                      </p>
+                      <p className="text-xs text-muted-foreground">Saved to your account and reused in appointment booking.</p>
+                    </div>
+                    <Button variant="outline" size="sm" className="gap-2" onClick={() => setDependentOpen(true)}>
+                      <UserPlus className="h-4 w-4" /> Add
+                    </Button>
+                  </div>
+
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    {dependents.length > 0 ? (
+                      dependents.map((dependent) => (
+                        <div key={dependent.id} className="rounded-xl border border-border bg-card p-3">
+                          <p className="font-medium text-card-foreground">{dependent.name}</p>
+                          <p className="text-xs text-muted-foreground">{dependent.relation} • {dependent.age}</p>
+                          <button
+                            type="button"
+                            onClick={() => void handleRemoveDependent(dependent.id)}
+                            className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-red-600 hover:underline"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" /> Remove
+                          </button>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-sm text-muted-foreground">No dependents added yet.</p>
+                    )}
+                  </div>
+                </div>
+
                 <Button className="w-full rounded-xl" onClick={handleSave} disabled={isSaving}>
                   {isSaving ? "Saving..." : "Save Changes"}
                 </Button>
@@ -139,6 +282,27 @@ const ProfilePage = ({ role }: ProfilePageProps) => {
           </main>
         </div>
       </div>
+
+      <Dialog open={dependentOpen} onOpenChange={setDependentOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add New Dependent</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-2">
+            <Input placeholder="Dependent name" value={newDependentName} onChange={(e) => setNewDependentName(e.target.value)} />
+            <Input placeholder="Relation (Child, Spouse, Parent)" value={newDependentRelation} onChange={(e) => setNewDependentRelation(e.target.value)} />
+            <Input placeholder="Age" value={newDependentAge} onChange={(e) => setNewDependentAge(e.target.value)} />
+            <div className="flex gap-2">
+              <Button variant="outline" className="flex-1" onClick={() => setDependentOpen(false)}>
+                Cancel
+              </Button>
+              <Button className="flex-1" onClick={() => void handleAddDependent()}>
+                Save Dependent
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </SidebarProvider>
   );
 };

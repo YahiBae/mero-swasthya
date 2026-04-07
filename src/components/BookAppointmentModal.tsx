@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { format } from "date-fns";
-import { CalendarIcon, Clock, User, FileText } from "lucide-react";
+import { CalendarIcon, Clock, FileText, User, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -13,6 +13,7 @@ import { saveAppointment } from "@/data/appointmentStore";
 import { Doctor, hospitals, clinics } from "@/data/mockData";
 import { useNavigate } from "react-router-dom";
 import { useAuthStatus } from "@/hooks/useAuthStatus";
+import { getDependents } from "@/data/dependentStore";
 
 interface BookAppointmentModalProps {
   open: boolean;
@@ -28,8 +29,19 @@ const BookAppointmentModal = ({ open, onClose, doctor }: BookAppointmentModalPro
   const [patientName, setPatientName] = useState("");
   const [problem, setProblem] = useState("");
   const [step, setStep] = useState<"form" | "success">("form");
+  const [selectedDependentId, setSelectedDependentId] = useState("self");
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuthStatus();
+  const { isAuthenticated, user } = useAuthStatus();
+  const selfName = user?.displayName || user?.email?.split("@")[0] || "You";
+
+  const dependents = useMemo(() => getDependents(), [open]);
+
+  useEffect(() => {
+    const activeDependent = dependents.find((dependent) => dependent.id === selectedDependentId) ?? dependents[0];
+    if (activeDependent) {
+      setPatientName(activeDependent.id === "self" ? selfName : activeDependent.name);
+    }
+  }, [dependents, selectedDependentId, selfName]);
 
   const selectedDayName = date ? dayNames[date.getDay()] : null;
   const availableSlots = selectedDayName
@@ -84,6 +96,7 @@ const BookAppointmentModal = ({ open, onClose, doctor }: BookAppointmentModalPro
     setSelectedSlot(null);
     setPatientName("");
     setProblem("");
+    setSelectedDependentId("self");
     onClose();
   };
 
@@ -158,6 +171,33 @@ const BookAppointmentModal = ({ open, onClose, doctor }: BookAppointmentModalPro
               )}
 
               {/* Patient Info */}
+              <div>
+                <label className="text-sm font-medium text-foreground mb-1.5 flex items-center gap-1.5">
+                  <Users className="h-4 w-4 text-primary" /> Select Patient / Dependent
+                </label>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {dependents.map((dependent) => (
+                    <button
+                      key={dependent.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedDependentId(dependent.id);
+                        setPatientName(dependent.id === "self" ? selfName : dependent.name);
+                      }}
+                      className={cn(
+                        "rounded-xl border px-4 py-3 text-left text-sm transition-all",
+                        selectedDependentId === dependent.id
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border bg-card text-foreground hover:border-primary/50",
+                      )}
+                    >
+                      <p className="font-medium">{dependent.name}</p>
+                      <p className="text-xs text-muted-foreground">{dependent.relation} • {dependent.age}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <div>
                 <label className="text-sm font-medium text-foreground mb-1.5 flex items-center gap-1.5">
                   <User className="h-4 w-4 text-primary" /> Patient Name *
