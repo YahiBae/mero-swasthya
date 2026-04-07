@@ -1,4 +1,4 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { MapPin, Phone, Mail, Star, BedDouble, Calendar, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
@@ -6,10 +6,10 @@ import Footer from "@/components/Footer";
 import DoctorCard from "@/components/DoctorCard";
 import { hospitals, doctors } from "@/data/mockData";
 import { useState } from "react";
-import { toast } from "sonner";
 
 const HospitalDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const hospital = hospitals.find((h) => h.id === Number(id));
   const [activeTab, setActiveTab] = useState<"overview" | "departments" | "doctors">("overview");
 
@@ -101,7 +101,16 @@ const HospitalDetails = () => {
                     <MapPin className="h-4 w-4 text-primary" /> {hospital.location}
                   </div>
                 </div>
-                <Button className="mt-6 w-full rounded-xl" onClick={() => toast.success("Appointment booking coming soon!")}>
+                <Button
+                  className="mt-6 w-full rounded-xl"
+                  onClick={() => {
+                    if (hospitalDoctors.length === 0) {
+                      return;
+                    }
+                    navigate(`/doctors/${hospitalDoctors[0].id}?book=1`);
+                  }}
+                  disabled={hospitalDoctors.length === 0}
+                >
                   Book Appointment
                 </Button>
               </div>

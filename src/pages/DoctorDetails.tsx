@@ -1,17 +1,28 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useSearchParams } from "react-router-dom";
 import { MapPin, Star, Clock, Banknote, GraduationCap, Languages, Calendar, ArrowLeft, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { doctors, hospitals } from "@/data/mockData";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import BookAppointmentModal from "@/components/BookAppointmentModal";
 
 const DoctorDetails = () => {
   const { id } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const doctor = doctors.find((d) => d.id === Number(id));
   const [activeTab, setActiveTab] = useState<"overview" | "schedule" | "qualifications">("overview");
   const [bookingOpen, setBookingOpen] = useState(false);
+
+  useEffect(() => {
+    if (searchParams.get("book") !== "1") {
+      return;
+    }
+    setBookingOpen(true);
+    const next = new URLSearchParams(searchParams);
+    next.delete("book");
+    setSearchParams(next, { replace: true });
+  }, [searchParams, setSearchParams]);
 
   if (!doctor) {
     return (

@@ -1,4 +1,4 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { MapPin, Phone, Star, Clock, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
@@ -6,10 +6,10 @@ import Footer from "@/components/Footer";
 import DoctorCard from "@/components/DoctorCard";
 import { clinics, doctors } from "@/data/mockData";
 import { useState } from "react";
-import { toast } from "sonner";
 
 const ClinicDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const clinic = clinics.find((c) => c.id === Number(id));
   const [activeTab, setActiveTab] = useState<"overview" | "services" | "doctors">("overview");
 
@@ -100,7 +100,16 @@ const ClinicDetails = () => {
                     ))}
                   </div>
                 </div>
-                <Button className="mt-6 w-full rounded-xl" onClick={() => toast.success("Appointment booking coming soon!")}>
+                <Button
+                  className="mt-6 w-full rounded-xl"
+                  onClick={() => {
+                    if (clinicDoctors.length === 0) {
+                      return;
+                    }
+                    navigate(`/doctors/${clinicDoctors[0].id}?book=1`);
+                  }}
+                  disabled={clinicDoctors.length === 0}
+                >
                   Book Appointment
                 </Button>
               </div>
