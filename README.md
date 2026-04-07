@@ -1,3 +1,3 @@
-# Welcome to your Lovable project
+# mero-swasthya
 
-TODO: Document your project here
+Appointment Nepal System
