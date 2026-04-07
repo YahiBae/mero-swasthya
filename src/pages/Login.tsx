@@ -1,17 +1,43 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import { toast } from "sonner";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { firebaseAuth, hasFirebaseConfig } from "@/lib/firebase";
 
 const Login = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("Login successful! (Mock)");
+
+    if (!hasFirebaseConfig() || !firebaseAuth) {
+      toast.error("Firebase is not configured. Add VITE_FIREBASE_* values to your .env file.");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      await signInWithEmailAndPassword(firebaseAuth, email.trim(), password);
+      toast.success("Login successful!");
+      navigate("/dashboard");
+    } catch (error) {
+      const code = (error as { code?: string }).code;
+      if (code === "auth/invalid-credential" || code === "auth/wrong-password" || code === "auth/user-not-found") {
+        toast.error("Invalid email or password.");
+      } else if (code === "auth/operation-not-allowed") {
+        toast.error("Email/password login is disabled in Firebase Console.");
+      } else {
+        toast.error("Login failed. Please try again.");
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -56,8 +82,8 @@ const Login = () => {
                 </div>
               </div>
 
-              <Button type="submit" className="w-full gap-2 rounded-xl">
-                Login <ArrowRight className="h-4 w-4" />
+              <Button type="submit" className="w-full gap-2 rounded-xl" disabled={isSubmitting}>
+                {isSubmitting ? "Logging in..." : "Login"} <ArrowRight className="h-4 w-4" />
               </Button>
             </form>
 

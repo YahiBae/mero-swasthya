@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, User, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import { toast } from "sonner";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { firebaseAuth, hasFirebaseConfig } from "@/lib/firebase";
 
 type Role = "patient" | "doctor" | "hospital" | "clinic";
 
@@ -15,14 +17,50 @@ const roles: { value: Role; label: string }[] = [
 ];
 
 const Register = () => {
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState<Role>("patient");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success(`Registered as ${role} successfully! (Mock)`);
+
+    if (!hasFirebaseConfig() || !firebaseAuth) {
+      toast.error("Firebase is not configured. Add VITE_FIREBASE_* values to your .env file.");
+      return;
+    }
+
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters.");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      const credential = await createUserWithEmailAndPassword(firebaseAuth, email.trim(), password);
+      await updateProfile(credential.user, {
+        displayName: `${name.trim()} (${role})`,
+      });
+      toast.success(`Registered as ${role} successfully!`);
+      navigate("/dashboard");
+    } catch (error) {
+      const code = (error as { code?: string }).code;
+      if (code === "auth/email-already-in-use") {
+        toast.error("This email is already in use.");
+      } else if (code === "auth/invalid-email") {
+        toast.error("Please enter a valid email address.");
+      } else if (code === "auth/weak-password") {
+        toast.error("Password is too weak.");
+      } else if (code === "auth/operation-not-allowed") {
+        toast.error("Email/password signup is disabled in Firebase Console.");
+      } else {
+        toast.error("Registration failed. Please try again.");
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -41,6 +79,7 @@ const Register = () => {
               {roles.map((r) => (
                 <button
                   key={r.value}
+                  type="button"
                   onClick={() => setRole(r.value)}
                   className={`rounded-lg py-2 text-xs font-medium transition-all ${
                     role === r.value
@@ -99,8 +138,8 @@ const Register = () => {
                 </div>
               </div>
 
-              <Button type="submit" className="w-full gap-2 rounded-xl">
-                Register as {roles.find(r => r.value === role)?.label} <ArrowRight className="h-4 w-4" />
+              <Button type="submit" className="w-full gap-2 rounded-xl" disabled={isSubmitting}>
+                {isSubmitting ? "Registering..." : `Register as ${roles.find((r) => r.value === role)?.label}`} <ArrowRight className="h-4 w-4" />
               </Button>
             </form>
 

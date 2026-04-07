@@ -90,6 +90,7 @@ npm run dev
 
 - The current app uses local mock data and does not connect to a backend API yet.
 - Images and listing data are seeded from static sample content in the repository.
+- Firebase support is bootstrapped in [src/lib/firebase.ts](src/lib/firebase.ts), but it stays disabled until the required `VITE_FIREBASE_*` environment variables are provided.
 
 ## Feature Walkthrough
 
@@ -152,6 +153,28 @@ npm run preview
 ## Backend / API Plan
 
 The app currently relies on mock data in `src/data/mockData.ts`. A future backend can replace this layer with real services for authentication, provider listings, availability, and appointment booking.
+
+## Firebase Setup
+
+Firebase is now wired in as the first backend option for the app.
+
+### Environment Variables
+
+Copy [.env.example](.env.example) to `.env` and fill in your Firebase project values.
+
+### Available Exports
+
+- `firebaseApp` - initialized Firebase app or `null` when config is missing
+- `firebaseAuth` - Firebase Auth instance or `null`
+- `firestore` - Firestore instance or `null`
+- `hasFirebaseConfig()` - helper that reports whether Firebase is configured
+
+### Next Integration Steps
+
+- Move authentication to Firebase Auth
+- Replace appointment localStorage storage with Firestore
+- Store provider and patient profiles in Firestore
+- Add security rules before using the app in production
 
 ### Suggested API Areas
 
