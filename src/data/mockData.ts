@@ -96,6 +96,46 @@ export const hospitals: Hospital[] = [
     departments: ["Gynecology", "Pediatrics", "Ophthalmology", "Internal Medicine", "Surgery", "Radiology", "Pathology"],
     phone: "+977-1-5522266", email: "info@patanhospital.gov.np", established: 1956, doctorIds: [5, 8]
   },
+  {
+    id: 7, name: "Nepal Mediciti Hospital", location: "Bhaisepati, Lalitpur", city: "Lalitpur",
+    image: "https://images.unsplash.com/photo-1580281657527-47f249e8f4df?w=400&h=300&fit=crop", rating: 4.6,
+    specialties: ["Cardiology", "Internal Medicine", "Orthopedics"], beds: 500,
+    description: "Nepal Mediciti Hospital is a modern tertiary care center known for comprehensive specialist care and advanced diagnostics.",
+    departments: ["Cardiology", "Internal Medicine", "Orthopedics", "Neurology", "Oncology", "Radiology", "Emergency Medicine"],
+    phone: "+977-1-4217766", email: "info@nepalmediciti.com", established: 2017, doctorIds: [1, 3, 8]
+  },
+  {
+    id: 8, name: "Bhaktapur Cancer Hospital", location: "Dudhpati, Bhaktapur", city: "Bhaktapur",
+    image: "https://images.unsplash.com/photo-1578991624414-276ef23a534f?w=400&h=300&fit=crop", rating: 4.3,
+    specialties: ["Oncology", "Radiology", "Pathology"], beds: 220,
+    description: "Bhaktapur Cancer Hospital offers specialized oncology care with chemotherapy, early screening, and palliative support services.",
+    departments: ["Oncology", "Radiology", "Pathology", "Internal Medicine", "Psychiatry"],
+    phone: "+977-1-6614433", email: "care@bhaktapurcancer.org", established: 2004, doctorIds: [13, 10]
+  },
+  {
+    id: 9, name: "Manipal Teaching Hospital", location: "Fulbari, Pokhara", city: "Pokhara",
+    image: "https://images.unsplash.com/photo-1631815588090-d4bfec5b1ccb?w=400&h=300&fit=crop", rating: 4.4,
+    specialties: ["Cardiology", "Pediatrics", "General Surgery"], beds: 700,
+    description: "Manipal Teaching Hospital in Pokhara is a major referral and teaching institution serving western Nepal with multi-specialty services.",
+    departments: ["Cardiology", "Pediatrics", "General Surgery", "Gynecology", "ENT", "Ophthalmology", "Emergency Medicine"],
+    phone: "+977-61-526416", email: "info@manipalpokhara.edu.np", established: 1998, doctorIds: [1, 5, 9, 11]
+  },
+  {
+    id: 10, name: "Chitwan Medical College Teaching Hospital", location: "Bharatpur, Chitwan", city: "Chitwan",
+    image: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=400&h=300&fit=crop", rating: 4.2,
+    specialties: ["Internal Medicine", "Orthopedics", "Gynecology"], beds: 600,
+    description: "Chitwan Medical College Teaching Hospital provides specialist care, emergency services, and teaching-based clinical excellence.",
+    departments: ["Internal Medicine", "Orthopedics", "Gynecology", "Pediatrics", "Dermatology", "Nephrology", "Emergency Medicine"],
+    phone: "+977-56-532933", email: "contact@cmcth.edu.np", established: 2006, doctorIds: [3, 6, 7]
+  },
+  {
+    id: 11, name: "Nobel Medical College Teaching Hospital", location: "Kanchanbari, Biratnagar", city: "Biratnagar",
+    image: "https://images.unsplash.com/photo-1516549655169-df83a0774514?w=400&h=300&fit=crop", rating: 4.1,
+    specialties: ["Neurology", "Dermatology", "Gastroenterology"], beds: 550,
+    description: "Nobel Medical College Teaching Hospital is one of eastern Nepal's key hospitals with broad specialist and emergency services.",
+    departments: ["Neurology", "Dermatology", "Gastroenterology", "Cardiology", "Dental", "Pulmonology", "Psychiatry"],
+    phone: "+977-21-460736", email: "info@nobelmedicalcollege.edu.np", established: 2007, doctorIds: [2, 4, 12, 14]
+  },
 ];
 
 export const clinics: Clinic[] = [
