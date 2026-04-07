@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Facebook, Instagram, Mail, MapPin, Phone, Youtube } from "lucide-react";
+import { BRAND_CONTACT, BRAND_SOCIALS } from "@/data/siteContent";
 
 const Footer = () => (
   <footer className="border-t border-border bg-foreground text-primary-foreground">
@@ -47,10 +48,11 @@ const Footer = () => (
         <div>
           <h4 className="mb-3 text-sm font-semibold uppercase tracking-wide">Get In Touch</h4>
           <div className="flex flex-col gap-2 text-sm opacity-70">
-            <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /> Pani Pokhari, Kathmandu Nepal</div>
-            <div className="flex items-center gap-2"><Phone className="h-4 w-4" /> +977-9801985751</div>
-            <div className="flex items-center gap-2"><Phone className="h-4 w-4" /> +977-1-5970604</div>
-            <div className="flex items-center gap-2"><Mail className="h-4 w-4" /> support@meroswasthya.np</div>
+            <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /> {BRAND_CONTACT.location}</div>
+            {BRAND_CONTACT.phones.map((phone) => (
+              <div key={phone} className="flex items-center gap-2"><Phone className="h-4 w-4" /> {phone}</div>
+            ))}
+            <div className="flex items-center gap-2"><Mail className="h-4 w-4" /> {BRAND_CONTACT.email}</div>
           </div>
         </div>
       </div>
@@ -58,9 +60,9 @@ const Footer = () => (
       <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-primary-foreground/10 pt-6 text-sm opacity-80">
         <div className="flex items-center gap-3">
           <span>Follow Us on:</span>
-          <a href="#" aria-label="Facebook" className="hover:opacity-100"><Facebook className="h-4 w-4" /></a>
-          <a href="#" aria-label="Instagram" className="hover:opacity-100"><Instagram className="h-4 w-4" /></a>
-          <a href="#" aria-label="Youtube" className="hover:opacity-100"><Youtube className="h-4 w-4" /></a>
+          <a href={BRAND_SOCIALS.facebook} target="_blank" rel="noreferrer" aria-label="Facebook" className="hover:opacity-100"><Facebook className="h-4 w-4" /></a>
+          <a href={BRAND_SOCIALS.instagram} target="_blank" rel="noreferrer" aria-label="Instagram" className="hover:opacity-100"><Instagram className="h-4 w-4" /></a>
+          <a href={BRAND_SOCIALS.youtube} target="_blank" rel="noreferrer" aria-label="Youtube" className="hover:opacity-100"><Youtube className="h-4 w-4" /></a>
         </div>
         <div className="flex items-center gap-3">
           <Link to="/services" className="hover:opacity-100">Terms & conditions</Link>

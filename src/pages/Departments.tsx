@@ -4,24 +4,8 @@ import { ArrowRight, Building2, Search, Stethoscope } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { doctors, specializations } from "@/data/mockData";
-
-const nepaliLabelMap: Record<string, string> = {
-  Cardiology: "मुटुरोग सम्बन्धी",
-  Neurology: "स्नायुशास्त्र",
-  Orthopedics: "हाडजोर्नी सेवा",
-  Dermatology: "चर्मरोग",
-  Pediatrics: "बालरोग सेवा",
-  Gynecology: "स्त्री तथा प्रसूति रोग",
-  Oncology: "क्यान्सर सेवा",
-  ENT: "नाक कान घाँटी",
-  Ophthalmology: "आँखा",
-  Dental: "दन्त सेवा",
-  "General Surgery": "साधारण शल्यक्रिया",
-  "Internal Medicine": "आन्तरिक चिकित्सा",
-  Gastroenterology: "पेट तथा कलेजो रोग",
-  Psychiatry: "मनोरोग",
-};
+import { doctors } from "@/data/mockData";
+import { DEPARTMENT_CATALOG } from "@/data/siteContent";
 
 const steps = [
   "Select a department",
@@ -39,15 +23,15 @@ const Departments = () => {
   const orgMode = params.get("org") === "true";
 
   const departmentData = useMemo(() => {
-    return specializations.map((name) => ({
-      name,
-      nepali: nepaliLabelMap[name] ?? "विशेषज्ञ सेवा",
-      doctorCount: doctors.filter((d) => d.specialty.toLowerCase().includes(name.toLowerCase())).length,
+    return DEPARTMENT_CATALOG.map((dept) => ({
+      name: dept.en,
+      nepali: dept.np,
+      doctorCount: doctors.filter((d) => d.specialty.toLowerCase().includes(dept.en.toLowerCase())).length,
     }));
   }, []);
 
   const filtered = departmentData.filter((d) =>
-    d.name.toLowerCase().includes(query.toLowerCase().trim()),
+    d.name.toLowerCase().includes(query.toLowerCase().trim()) || d.nepali.includes(query.trim()),
   );
 
   return (

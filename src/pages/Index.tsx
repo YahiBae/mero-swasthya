@@ -17,6 +17,7 @@ import HospitalCard from "@/components/HospitalCard";
 import ClinicCard from "@/components/ClinicCard";
 import DoctorCard from "@/components/DoctorCard";
 import { hospitals, clinics, doctors, specializations, locations } from "@/data/mockData";
+import { DEPARTMENT_CATALOG } from "@/data/siteContent";
 
 const HeroSection = () => (
   <section className="hero-gradient relative overflow-hidden py-16 lg:py-22">
@@ -101,17 +102,6 @@ const QuickAccess = () => (
   </section>
 );
 
-const departments = [
-  { en: "General Practice", np: "साधारण तथा आकस्मिक चिकित्सा" },
-  { en: "Internal Medicine", np: "आन्तरिक चिकित्सा" },
-  { en: "Cardiology", np: "मुटुरोग सम्बन्धी" },
-  { en: "Pediatrics", np: "बालरोग सेवा" },
-  { en: "Dermatology", np: "चर्मरोग" },
-  { en: "Orthopedics", np: "हाडजोर्नी सेवा" },
-  { en: "ENT", np: "नाक कान घाँटी" },
-  { en: "Neurology", np: "स्नायुशास्त्र" },
-];
-
 const DepartmentHighlights = () => (
   <section className="container mx-auto px-4 py-10">
     <div className="mb-6 flex items-end justify-between">
@@ -125,7 +115,7 @@ const DepartmentHighlights = () => (
     </div>
 
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      {departments.map((dept) => (
+      {DEPARTMENT_CATALOG.slice(0, 8).map((dept) => (
         <Link key={dept.en} to="/departments?org=true" className="card-shadow rounded-2xl bg-card p-4 transition-all hover:-translate-y-0.5 hover:card-shadow-hover">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-semibold uppercase tracking-wide text-card-foreground">{dept.en}</h3>
