@@ -57,6 +57,25 @@ export function updateAppointmentStatus(id: string, status: AppointmentStatus): 
   }
 }
 
+export function deleteAppointmentById(id: string): void {
+  const all = getAppointments();
+  const next = all.filter((appointment) => appointment.id !== id);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+}
+
+export function deleteAppointmentsByIds(ids: string[]): number {
+  if (ids.length === 0) {
+    return 0;
+  }
+
+  const idSet = new Set(ids);
+  const all = getAppointments();
+  const next = all.filter((appointment) => !idSet.has(appointment.id));
+  const removed = all.length - next.length;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+  return removed;
+}
+
 function getSeedAppointments(): Appointment[] {
   const seeds: Appointment[] = [
     {

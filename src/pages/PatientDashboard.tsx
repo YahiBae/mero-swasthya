@@ -11,6 +11,7 @@ import {
   ShieldCheck,
   Smartphone,
   Stethoscope,
+  Trash2,
   UserPlus,
   Video,
   XCircle,
@@ -22,7 +23,7 @@ import { Input } from "@/components/ui/input";
 import DashboardSidebar from "@/components/DashboardSidebar";
 import StatusBadge from "@/components/StatusBadge";
 import { useAuthStatus } from "@/hooks/useAuthStatus";
-import { getAppointments, type Appointment } from "@/data/appointmentStore";
+import { deleteAppointmentById, deleteAppointmentsByIds, getAppointments, type Appointment } from "@/data/appointmentStore";
 import { DEPARTMENT_CATALOG } from "@/data/siteContent";
 import { addDependent, getDependents, removeDependent, sanitizeDependentList, setDependents as setStoredDependents, type Dependent } from "@/data/dependentStore";
 import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
@@ -56,6 +57,10 @@ const PatientDashboard = () => {
   const [newDependentAge, setNewDependentAge] = useState("");
   const [testimonialIndex, setTestimonialIndex] = useState(0);
   const [isCarouselPaused, setIsCarouselPaused] = useState(false);
+  const [clearMode, setClearMode] = useState(false);
+  const [selectedPastIds, setSelectedPastIds] = useState<string[]>([]);
+  const [clearUpcomingMode, setClearUpcomingMode] = useState(false);
+  const [selectedUpcomingIds, setSelectedUpcomingIds] = useState<string[]>([]);
 
   useEffect(() => {
     setAppointments(getAppointments());
@@ -133,6 +138,7 @@ const PatientDashboard = () => {
   const upcoming = appointments.filter((a) => a.status === "confirmed");
   const completed = appointments.filter((a) => a.status === "completed");
   const cancelled = appointments.filter((a) => a.status === "cancelled");
+  const pastAppointments = [...completed, ...cancelled];
 
   const benefits = [
     {
@@ -236,6 +242,70 @@ const PatientDashboard = () => {
     }
     toast.success("Dependent removed.");
   };
+
+  const togglePastSelection = (id: string) => {
+    setSelectedPastIds((current) =>
+      current.includes(id) ? current.filter((item) => item !== id) : [...current, id],
+    );
+  };
+
+  const handleClearPastOne = (id: string) => {
+    deleteAppointmentById(id);
+    setAppointments(getAppointments());
+    setSelectedPastIds((current) => current.filter((item) => item !== id));
+    toast.success("Past appointment cleared.");
+  };
+
+  const handleClearSelectedPast = () => {
+    if (selectedPastIds.length === 0) {
+      toast.error("Select past appointments to clear.");
+      return;
+    }
+
+    const removed = deleteAppointmentsByIds(selectedPastIds);
+    setAppointments(getAppointments());
+    setSelectedPastIds([]);
+    setClearMode(false);
+    toast.success(`${removed} past appointment${removed > 1 ? "s" : ""} cleared.`);
+  };
+
+  const toggleUpcomingSelection = (id: string) => {
+    setSelectedUpcomingIds((current) =>
+      current.includes(id) ? current.filter((item) => item !== id) : [...current, id],
+    );
+  };
+
+  const handleClearUpcomingOne = (id: string) => {
+    deleteAppointmentById(id);
+    setAppointments(getAppointments());
+    setSelectedUpcomingIds((current) => current.filter((item) => item !== id));
+    toast.success("Upcoming appointment cleared.");
+  };
+
+  const handleClearSelectedUpcoming = () => {
+    if (selectedUpcomingIds.length === 0) {
+      toast.error("Select upcoming appointments to clear.");
+      return;
+    }
+
+    const removed = deleteAppointmentsByIds(selectedUpcomingIds);
+    setAppointments(getAppointments());
+    setSelectedUpcomingIds([]);
+    setClearUpcomingMode(false);
+    toast.success(`${removed} upcoming appointment${removed > 1 ? "s" : ""} cleared.`);
+  };
+
+  useEffect(() => {
+    if (!clearMode) {
+      setSelectedPastIds([]);
+    }
+  }, [clearMode]);
+
+  useEffect(() => {
+    if (!clearUpcomingMode) {
+      setSelectedUpcomingIds([]);
+    }
+  }, [clearUpcomingMode]);
 
   return (
     <SidebarProvider>
@@ -498,7 +568,27 @@ const PatientDashboard = () => {
 
             {/* Upcoming */}
             <section>
-              <h2 className="text-lg font-semibold text-foreground mb-3">Upcoming Appointments</h2>
+              <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                <h2 className="text-lg font-semibold text-foreground">Upcoming Appointments</h2>
+                {upcoming.length > 0 && (
+                  <div className="flex items-center gap-2">
+                    {clearUpcomingMode ? (
+                      <>
+                        <Button variant="outline" size="sm" onClick={() => setClearUpcomingMode(false)}>
+                          Cancel
+                        </Button>
+                        <Button size="sm" className="gap-2" onClick={handleClearSelectedUpcoming}>
+                          <Trash2 className="h-4 w-4" /> Clear Upcoming ({selectedUpcomingIds.length})
+                        </Button>
+                      </>
+                    ) : (
+                      <Button size="sm" className="gap-2" onClick={() => setClearUpcomingMode(true)}>
+                        <Trash2 className="h-4 w-4" /> Clear Upcoming
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </div>
               {upcoming.length === 0 ? (
                 <div className="rounded-xl border border-dashed border-border bg-background p-6 text-sm text-muted-foreground">
                   No upcoming appointments. <Link to="/departments?org=true" className="text-primary hover:underline">Book a consultation now</Link>.
@@ -506,7 +596,40 @@ const PatientDashboard = () => {
               ) : (
                 <div className="space-y-3">
                   {upcoming.map((a) => (
-                    <AppointmentRow key={a.id} appointment={a} />
+                    <div
+                      key={a.id}
+                      className={`card-shadow rounded-2xl bg-card p-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 ${
+                        clearUpcomingMode && selectedUpcomingIds.includes(a.id) ? "ring-2 ring-primary/50" : ""
+                      }`}
+                    >
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-card-foreground truncate">{a.doctorName}</p>
+                        <p className="text-sm text-muted-foreground truncate">{a.hospitalOrClinic}</p>
+                      </div>
+                      <div className="text-sm text-muted-foreground shrink-0">
+                        {a.date} · {a.timeSlot}
+                      </div>
+                      <StatusBadge status={a.status} />
+                      {clearUpcomingMode ? (
+                        <label className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <input
+                            type="checkbox"
+                            checked={selectedUpcomingIds.includes(a.id)}
+                            onChange={() => toggleUpcomingSelection(a.id)}
+                          />
+                          Select
+                        </label>
+                      ) : (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="gap-1 text-destructive border-destructive/30 hover:bg-destructive/10"
+                          onClick={() => handleClearUpcomingOne(a.id)}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" /> Clear
+                        </Button>
+                      )}
+                    </div>
                   ))}
                 </div>
               )}
@@ -514,13 +637,66 @@ const PatientDashboard = () => {
 
             {/* Past */}
             <section>
-              <h2 className="text-lg font-semibold text-foreground mb-3">Past Appointments</h2>
-              {[...completed, ...cancelled].length === 0 ? (
+              <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                <h2 className="text-lg font-semibold text-foreground">Past Appointments</h2>
+                {pastAppointments.length > 0 && (
+                  <div className="flex items-center gap-2">
+                    {clearMode ? (
+                      <>
+                        <Button variant="outline" size="sm" onClick={() => setClearMode(false)}>
+                          Cancel
+                        </Button>
+                        <Button size="sm" className="gap-2" onClick={handleClearSelectedPast}>
+                          <Trash2 className="h-4 w-4" /> Clear History ({selectedPastIds.length})
+                        </Button>
+                      </>
+                    ) : (
+                      <Button size="sm" className="gap-2" onClick={() => setClearMode(true)}>
+                        <Trash2 className="h-4 w-4" /> Clear History
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </div>
+              {pastAppointments.length === 0 ? (
                 <p className="text-muted-foreground text-sm">No past appointments.</p>
               ) : (
                 <div className="space-y-3">
-                  {[...completed, ...cancelled].map((a) => (
-                    <AppointmentRow key={a.id} appointment={a} />
+                  {pastAppointments.map((a) => (
+                    <div
+                      key={a.id}
+                      className={`card-shadow rounded-2xl bg-card p-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 ${
+                        clearMode && selectedPastIds.includes(a.id) ? "ring-2 ring-primary/50" : ""
+                      }`}
+                    >
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-card-foreground truncate">{a.doctorName}</p>
+                        <p className="text-sm text-muted-foreground truncate">{a.hospitalOrClinic}</p>
+                      </div>
+                      <div className="text-sm text-muted-foreground shrink-0">
+                        {a.date} · {a.timeSlot}
+                      </div>
+                      <StatusBadge status={a.status} />
+                      {clearMode ? (
+                        <label className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <input
+                            type="checkbox"
+                            checked={selectedPastIds.includes(a.id)}
+                            onChange={() => togglePastSelection(a.id)}
+                          />
+                          Select
+                        </label>
+                      ) : (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="gap-1 text-destructive border-destructive/30 hover:bg-destructive/10"
+                          onClick={() => handleClearPastOne(a.id)}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" /> Clear
+                        </Button>
+                      )}
+                    </div>
                   ))}
                 </div>
               )}
