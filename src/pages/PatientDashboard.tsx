@@ -23,6 +23,8 @@ import { useAuthStatus } from "@/hooks/useAuthStatus";
 import { getAppointments, type Appointment } from "@/data/appointmentStore";
 import { DEPARTMENT_CATALOG } from "@/data/siteContent";
 import { addDependent, getDependents, removeDependent, type Dependent } from "@/data/dependentStore";
+import { doc, getDoc } from "firebase/firestore";
+import { firestore } from "@/lib/firebase";
 import { toast } from "sonner";
 
 const StatCard = ({ label, value, icon: Icon, color }: { label: string; value: number; icon: any; color: string }) => (
@@ -42,6 +44,8 @@ const PatientDashboard = () => {
   const { user } = useAuthStatus();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [dependents, setDependents] = useState<Dependent[]>([]);
+  const [displayName, setDisplayName] = useState("You");
+  const [profileEmail, setProfileEmail] = useState("");
   const [departmentQuery, setDepartmentQuery] = useState("");
   const [selectedDependentId, setSelectedDependentId] = useState("self");
   const [dependentOpen, setDependentOpen] = useState(false);
@@ -51,14 +55,49 @@ const PatientDashboard = () => {
 
   useEffect(() => {
     setAppointments(getAppointments());
-    const selfName = user?.displayName || user?.email?.split("@")[0] || "You";
-    setDependents([{ id: "self", name: selfName, relation: "Self", age: "Adult" }, ...getDependents().filter((item) => item.id !== "self")]);
   }, []);
 
   useEffect(() => {
     const selfName = user?.displayName || user?.email?.split("@")[0] || "You";
-    setDependents([{ id: "self", name: selfName, relation: "Self", age: "Adult" }, ...getDependents().filter((item) => item.id !== "self")]);
-  }, [user?.displayName, user?.email]);
+    setDisplayName(selfName);
+    setProfileEmail(user?.email ?? "");
+
+    const loadProfile = async () => {
+      const fallbackDependents = getDependents();
+      if (!user?.uid || !firestore) {
+        setDependents([{ id: "self", name: selfName, relation: "Self", age: "Adult" }, ...fallbackDependents]);
+        return;
+      }
+
+      try {
+        const snapshot = await getDoc(doc(firestore, "users", user.uid));
+        if (!snapshot.exists()) {
+          setDependents([{ id: "self", name: selfName, relation: "Self", age: "Adult" }, ...fallbackDependents]);
+          return;
+        }
+
+        const data = snapshot.data() as {
+          name?: string;
+          email?: string;
+          dependents?: Dependent[];
+        };
+
+        if (data.name) {
+          setDisplayName(data.name);
+        }
+        if (data.email) {
+          setProfileEmail(data.email);
+        }
+
+        const firestoreDependents = Array.isArray(data.dependents) ? data.dependents : fallbackDependents;
+        setDependents([{ id: "self", name: data.name ?? selfName, relation: "Self", age: "Adult" }, ...firestoreDependents]);
+      } catch {
+        setDependents([{ id: "self", name: selfName, relation: "Self", age: "Adult" }, ...fallbackDependents]);
+      }
+    };
+
+    void loadProfile();
+  }, [user?.displayName, user?.email, user?.uid]);
 
   const filteredDepartments = useMemo(() => {
     const trimmed = departmentQuery.trim().toLowerCase();
@@ -108,8 +147,8 @@ const PatientDashboard = () => {
   ];
 
   const refreshDependents = () => {
-    const selfName = user?.displayName || user?.email?.split("@")[0] || "You";
-    setDependents([{ id: "self", name: selfName, relation: "Self", age: "Adult" }, ...getDependents().filter((item) => item.id !== "self")]);
+    const selfName = displayName || user?.displayName || user?.email?.split("@")[0] || "You";
+    setDependents([{ id: "self", name: selfName, relation: "Self", age: "Adult" }, ...getDependents()]);
   };
 
   const handleAddDependent = () => {
@@ -156,31 +195,105 @@ const PatientDashboard = () => {
               <p className="mt-2 text-sm text-white/85 md:text-base">More than 20 specialties and trusted doctors are available for instant video consultation.</p>
             </section>
 
-            <section className="rounded-2xl bg-card p-4 md:p-6">
-              <div className="grid gap-6 lg:grid-cols-2">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
+            <section className="grid gap-6 xl:grid-cols-[minmax(0,1.7fr)_minmax(300px,0.9fr)]">
+              <div className="rounded-2xl bg-card p-4 md:p-6 space-y-4">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
                     <h3 className="text-lg font-semibold text-foreground">Who will be seeing the doctor?</h3>
-                    <input
-                      value={departmentQuery}
-                      onChange={(e) => setDepartmentQuery(e.target.value)}
-                      className="w-full max-w-[280px] rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none"
-                      placeholder="Search departments"
-                    />
+                    <p className="text-sm text-muted-foreground">Select a saved profile or dependent and choose a department.</p>
                   </div>
+                  <input
+                    value={departmentQuery}
+                    onChange={(e) => setDepartmentQuery(e.target.value)}
+                    className="w-full max-w-[280px] rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none"
+                    placeholder="Search departments"
+                  />
+                </div>
 
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    {dependents.map((dependent) => (
-                      <div
-                        key={dependent.id}
-                        className={`rounded-xl border p-3 text-left transition ${
-                          selectedDependentId === dependent.id ? "border-primary bg-primary/10" : "border-border bg-background"
-                        }`}
-                      >
-                        <button type="button" onClick={() => setSelectedDependentId(dependent.id)} className="block w-full text-left">
-                          <p className="font-semibold text-foreground">{dependent.name}</p>
-                          <p className="text-xs text-muted-foreground">{dependent.relation} • {dependent.age}</p>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {dependents.map((dependent) => (
+                    <div
+                      key={dependent.id}
+                      className={`rounded-xl border p-3 text-left transition ${
+                        selectedDependentId === dependent.id ? "border-primary bg-primary/10" : "border-border bg-background"
+                      }`}
+                    >
+                      <button type="button" onClick={() => setSelectedDependentId(dependent.id)} className="block w-full text-left">
+                        <p className="font-semibold text-foreground">{dependent.name}</p>
+                        <p className="text-xs text-muted-foreground">{dependent.relation} • {dependent.age}</p>
+                      </button>
+                      {dependent.id !== "self" && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveDependent(dependent.id)}
+                          className="mt-2 text-xs font-medium text-red-600 hover:underline"
+                        >
+                          Remove
                         </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {filteredDepartments.map((dept) => (
+                    <button
+                      key={dept.en}
+                      onClick={() => navigate(`/doctors?department=${encodeURIComponent(dept.en)}`)}
+                      className="rounded-lg border border-border bg-background px-3 py-2 text-left text-sm text-foreground hover:border-primary hover:text-primary"
+                    >
+                      {dept.en}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="flex flex-wrap gap-3">
+                  <Button variant="outline" className="gap-2 rounded-xl" onClick={() => setDependentOpen(true)}>
+                    <UserPlus className="h-4 w-4" /> Add new dependent
+                  </Button>
+                  <Button className="gap-2 rounded-xl" onClick={() => navigate("/departments?org=true")}> 
+                    <Video className="h-4 w-4" /> Start Video Consultation
+                  </Button>
+                </div>
+
+                <div className="rounded-xl bg-primary px-4 py-3 text-sm text-primary-foreground">
+                  Our platform helps patients connect with suitable specialists based on department and doctor availability.
+                </div>
+              </div>
+
+              <aside className="space-y-4">
+                <div className="rounded-2xl bg-card p-4 md:p-6">
+                  <p className="text-sm font-semibold text-primary">Account</p>
+                  <h3 className="mt-1 text-2xl font-bold text-foreground">{displayName}</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">{profileEmail || "No email found"}</p>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <Link to="/dashboard/profile">
+                      <Button variant="outline" className="rounded-xl">Edit Profile</Button>
+                    </Link>
+                    <Button variant="outline" className="rounded-xl" onClick={() => navigate("/dashboard/appointments")}>Appointments</Button>
+                  </div>
+                </div>
+
+                <div className="rounded-2xl bg-card p-4 md:p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-semibold text-primary">Dependents</p>
+                      <h4 className="text-lg font-bold text-foreground">Saved profile list</h4>
+                    </div>
+                    <Button variant="outline" size="sm" className="gap-2" onClick={() => setDependentOpen(true)}>
+                      <UserPlus className="h-4 w-4" /> Add
+                    </Button>
+                  </div>
+                  <div className="mt-4 space-y-3">
+                    {dependents.map((dependent) => (
+                      <div key={dependent.id} className="rounded-xl border border-border bg-background p-3">
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <p className="font-medium text-foreground">{dependent.name}</p>
+                            <p className="text-xs text-muted-foreground">{dependent.relation} • {dependent.age}</p>
+                          </div>
+                          {dependent.id === selectedDependentId && <span className="text-xs font-semibold text-primary">Active</span>}
+                        </div>
                         {dependent.id !== "self" && (
                           <button
                             type="button"
@@ -193,42 +306,15 @@ const PatientDashboard = () => {
                       </div>
                     ))}
                   </div>
-
-                  <div className="grid gap-2 sm:grid-cols-2">
-                    {filteredDepartments.map((dept) => (
-                      <button
-                        key={dept.en}
-                        onClick={() => navigate(`/doctors?department=${encodeURIComponent(dept.en)}`)}
-                        className="rounded-lg border border-border bg-background px-3 py-2 text-left text-sm text-foreground hover:border-primary hover:text-primary"
-                      >
-                        {dept.en}
-                      </button>
-                    ))}
-                  </div>
-
-                  <Button variant="outline" className="gap-2 rounded-xl" onClick={() => setDependentOpen(true)}>
-                    <UserPlus className="h-4 w-4" /> Add new dependent
-                  </Button>
                 </div>
 
-                <div className="space-y-3">
-                  <div className="rounded-xl border border-border bg-background p-4">
-                    <p className="font-semibold text-foreground">Instant Video Consultation</p>
-                    <p className="text-sm text-muted-foreground">Free instant video consultation with available doctors.</p>
-                  </div>
-                  <div className="rounded-xl border border-border bg-background p-4">
-                    <p className="font-semibold text-foreground">Need help choosing a doctor?</p>
-                    <p className="text-sm text-muted-foreground">Support team available every day from 7 AM to 9 PM.</p>
-                  </div>
-                  <Button className="w-full gap-2 rounded-xl" onClick={() => navigate("/departments?org=true")}> 
-                    <Video className="h-4 w-4" /> Start Video Consultation
-                  </Button>
+                <div className="rounded-2xl bg-card p-4 md:p-6 space-y-3">
+                  <p className="text-sm font-semibold text-primary">Instant Video Consultation</p>
+                  <p className="text-sm text-muted-foreground">Free instant video consultation with available doctors.</p>
+                  <p className="text-sm font-semibold text-primary">Need help choosing a doctor?</p>
+                  <p className="text-sm text-muted-foreground">Support team available every day from 7 AM to 9 PM.</p>
                 </div>
-              </div>
-
-              <div className="mt-5 rounded-xl bg-primary px-4 py-3 text-sm text-primary-foreground">
-                Our platform helps patients connect with suitable specialists based on department and doctor availability.
-              </div>
+              </aside>
             </section>
 
             <section className="rounded-2xl bg-card p-4 md:p-6">
