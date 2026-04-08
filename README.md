@@ -384,6 +384,77 @@ If you deploy to a static host, make sure unknown routes redirect to `index.html
 
 ---
 
+## 🛠️ Troubleshooting
+
+### Blank or broken Firebase screens
+- Check that the `.env` file contains the `VITE_FIREBASE_*` values.
+- Verify the Firebase project matches the values in [src/lib/firebase.ts](src/lib/firebase.ts).
+
+### Login or register does not work
+- Confirm Firebase Authentication is enabled in the Firebase console.
+- Make sure email/password sign-in is turned on.
+
+### Route refresh shows 404
+- Deploy with SPA fallback support so routes like `/hospitals` and `/doctors/:id` resolve to `index.html`.
+- On Vercel, confirm [vercel.json](vercel.json) is included in the deployment.
+
+### Build warnings appear
+- `Browserslist` can be updated with `npx update-browserslist-db@latest`.
+- The CSS import order warning in `src/index.css` is non-blocking but can be cleaned up later.
+
+---
+
+## ⚠️ Common Issues
+
+### Missing env values
+- Copy [.env.example](.env.example) to `.env`.
+- Fill all `VITE_FIREBASE_*` values before starting the app.
+
+### Firebase login popup does not open
+- Use `npx -y firebase-tools@latest login --no-localhost` if browser-based login fails.
+- Make sure Firebase Authentication is enabled for the project.
+
+### Nested route reload fails
+- Confirm the host rewrites all routes to `index.html`.
+- Keep [vercel.json](vercel.json) in the deployment for Vercel.
+
+### Development build feels stale
+- Stop and restart the dev server after changing env values.
+- Run `npm run build` again before deployment.
+
+---
+
+## ❓ FAQ
+
+### Is the app production ready?
+- The UI and core flows are ready for development and testing.
+- For production use, complete Firebase security rules and verify deployment settings.
+
+### Can I run the app without Firebase?
+- Yes, but Firebase-backed auth and profile persistence will be limited.
+- The app falls back to local project defaults when env values are missing.
+
+### Why does refresh fail on nested routes?
+- The app is a single-page application, so hosting must rewrite unknown routes to `index.html`.
+- This is already handled in [vercel.json](vercel.json) for Vercel deployments.
+
+### Where do I change the logo and branding?
+- Update [public/favicon.svg](public/favicon.svg) for the logo image.
+- Update the app name and metadata in [index.html](index.html).
+
+---
+
+## ✅ Setup Checklist
+
+- Copy [.env.example](.env.example) to `.env`
+- Fill in the `VITE_FIREBASE_*` values
+- Run `npm install`
+- Start the app with `npm run dev`
+- Verify login, booking, and profile flows
+- Run `npm run build` before deployment
+
+---
+
 ## 🤝 Contributing
 
 1. Fork the repository
