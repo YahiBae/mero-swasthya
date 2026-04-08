@@ -9,7 +9,7 @@ Please complete these setup steps before proceeding, and remember your progress 
 1. **Local Environment Setup:** Verify the environment is properly set up so we can use Firebase tools:
    - Run `npx -y firebase-tools@latest --version` to check if the Firebase CLI is installed.
    - Verify if the Firebase MCP server is installed using your existing tools.
-   - If either of these checks fails, please review [references/local-env-setup.md](references/local-env-setup.md) to get the environment ready.
+   - If either of these checks fails, please review references/local-env-setup.md to get the environment ready.
 
 2. **Authentication:**
    Ensure you are logged in to Firebase so that commands have the correct permissions. Run `npx -y firebase-tools@latest login`. For environments without a browser (e.g., remote shells), use `npx -y firebase-tools@latest login --no-localhost`.
@@ -24,7 +24,7 @@ Please complete these setup steps before proceeding, and remember your progress 
        ```bash
        npx -y firebase-tools@latest use --add <PROJECT_ID>
        ```
-     - If no: Follow the project creation instructions in [references/firebase-project-create.md](references/firebase-project-create.md).
+   - If no: Follow the project creation instructions in references/firebase-project-create.md.
 
 # Firebase Usage Principles
 
@@ -35,17 +35,17 @@ Please adhere to these principles when working with Firebase, as they ensure rel
 3. **Follow Agent Skills for implementation guidance:** Skills provide opinionated workflows (CUJs), security rules, and best practices. Always consult them to understand *how* to implement Firebase features correctly instead of relying on general knowledge.
 4. **Use Firebase MCP Server tools instead of direct API calls:** Whenever you need to interact with remote Firebase APIs (such as fetching Crashlytics logs or executing Data Connect queries), use the tools provided by the Firebase MCP Server instead of attempting manual API calls.
 5. **Keep Plugin / Agent Skills updated:** Since Firebase best practices evolve quickly, remind the user to regularly check for and install updates to their Firebase plugin or Agent Skills, ensuring you both operate with the latest workflows. Similarly, if you encounter issues with outdated tools or commands, follow the steps below based on your agent environment:
-   - **Antigravity**: Follow [references/refresh-antigravity.md](references/refresh-antigravity.md)
-   - **Gemini CLI**: Follow [references/refresh-gemini-cli.md](references/refresh-gemini-cli.md)
-   - **Claude Code**: Follow [references/refresh-claude.md](references/refresh-claude.md)
-   - **Cursor**: Follow [references/refresh-cursor.md](references/refresh-cursor.md)
-   - **Others**: Follow [references/refresh-other-agents.md](references/refresh-other-agents.md)
+   - **Antigravity**: Follow references/refresh-antigravity.md
+   - **Gemini CLI**: Follow references/refresh-gemini-cli.md
+   - **Claude Code**: Follow references/refresh-claude.md
+   - **Cursor**: Follow references/refresh-cursor.md
+   - **Others**: Follow references/refresh-other-agents.md
 
 # References
 
-- **Initialize Firebase:** See [references/firebase-service-init.md](references/firebase-service-init.md) when you need to initialize new Firebase services using the CLI.
-- **Exploring Commands:** See [references/firebase-cli-guide.md](references/firebase-cli-guide.md) to discover and understand CLI functionality.
-- **SDK Setup:** For detailed guides on adding Firebase to a web app, see [references/web_setup.md](references/web_setup.md).
+- **Initialize Firebase:** See references/firebase-service-init.md when you need to initialize new Firebase services using the CLI.
+- **Exploring Commands:** See references/firebase-cli-guide.md to discover and understand CLI functionality.
+- **SDK Setup:** For detailed guides on adding Firebase to a web app, see references/web_setup.md.
 
 # Common Issues
 

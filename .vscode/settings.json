@@ -1,3 +1,6 @@
 {
-  "markdown.validate.ignoredLinks": ["**/references/**"]
+  "markdown.validate.enabled": false,
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }
