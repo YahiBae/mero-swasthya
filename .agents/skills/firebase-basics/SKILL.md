@@ -39,7 +39,7 @@ Please adhere to these principles when working with Firebase, as they ensure rel
    - **Gemini CLI**: Follow [references/refresh-gemini-cli.md](references/refresh-gemini-cli.md)
    - **Claude Code**: Follow [references/refresh-claude.md](references/refresh-claude.md)
    - **Cursor**: Follow [references/refresh-cursor.md](references/refresh-cursor.md)
-   - **Others**: Follow [references/refresh-other.md](references/refresh-other-agents.md)
+   - **Others**: Follow [references/refresh-other-agents.md](references/refresh-other-agents.md)
 
 # References
 
