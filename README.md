@@ -33,48 +33,46 @@ A modern healthcare appointment platform for discovering hospitals, clinics, doc
 
 ## 🎯 About
 
-Mero Swasthya is a React-based healthcare appointment system designed to help people in Nepal discover providers, compare services, and manage appointment workflows in one place.
+Mero Swasthya is a React-based healthcare appointment platform for Nepal.
 
-The app includes:
+### Why Mero Swasthya?
 
-- hospital, clinic, and doctor listings
-- detailed provider profile pages
-- patient and provider dashboards
-- appointment booking and management flows
-- authenticated profile and dependent management
-- Firebase Auth and Firestore support for persistent user data
+- **Provider discovery:** browse hospitals, clinics, and doctors in one place
+- **Appointment workflow:** book, view, and manage appointments without friction
+- **Authenticated accounts:** sign in with Firebase Auth and keep profile data synced
+- **Patient + provider views:** separate dashboard flows for the two roles
+- **Deployment ready:** SPA-friendly hosting for deep links and refreshes
 
 ---
 
 ## ✨ Key Features
 
-### 🏥 Provider Discovery
-- Browse hospitals, clinics, and doctors in one interface
-- Open detailed pages for each provider
+### 🏥 Discovery
+- Browse hospitals, clinics, and doctors in a single interface
+- Open detailed provider pages with service and contact context
 - Filter and compare listings by category and location
 
-### 📅 Appointment Management
+### 📅 Appointments
 - Book appointments from provider detail pages
-- Prevent booking without authentication
+- Block booking until the user is authenticated
 - View upcoming and past appointments
 - Clear appointment history with single or multi-select actions
 
-### 👤 Account Experience
+### 👤 Accounts
 - Sign up and log in with Firebase Authentication
 - Save profile changes to Firestore
 - Manage patient and provider profile views
 - Store and clean dependent data safely
 
-### 🧭 Navigation and UX
+### 🧭 Experience
 - Responsive navigation for desktop and mobile
 - Fast client-side routing with React Router
-- Polished homepage, footer, and dashboard layouts
 - SPA-friendly deployment for deep links and refreshes
 
-### 🔥 Backend Ready
+### 🔥 Backend
 - Firebase integration for Auth and Firestore
 - Environment-based configuration
-- Secure foundation for future backend expansion
+- Ready for future backend expansion
 
 ---
 
@@ -83,6 +81,7 @@ The app includes:
 Add screenshots here when available.
 
 Suggested captures:
+
 - Home page hero and featured listings
 - Hospitals, clinics, and doctors pages
 - Hospital, clinic, and doctor detail pages
@@ -94,29 +93,29 @@ Suggested captures:
 ## 🧱 Tech Stack
 
 ### Frontend
-- React 18
-- TypeScript
-- Vite
-- React Router
-- TanStack Query
+- React 18 - UI framework
+- TypeScript - type-safe application code
+- Vite - development and build tooling
+- React Router - client-side navigation
+- TanStack Query - data orchestration
 
 ### Styling
-- Tailwind CSS
-- shadcn/ui
-- Radix UI primitives
-- Lucide React icons
+- Tailwind CSS - utility-first styling
+- shadcn/ui - accessible component system
+- Radix UI primitives - low-level UI building blocks
+- Lucide React icons - icon set
 
 ### State and Data
-- React Hook Form
-- Zod validation
-- localStorage for selected appointment flows
-- Firebase Auth and Firestore for persistent user data
+- React Hook Form - form state handling
+- Zod validation - schema validation
+- localStorage - selected appointment flows
+- Firebase Auth and Firestore - persistent user data
 
 ### Utilities
-- Sonner for toast notifications
-- date-fns for date handling
-- Embla Carousel for sliders
-- Recharts for charts
+- Sonner - toast notifications
+- date-fns - date handling
+- Embla Carousel - sliders
+- Recharts - charts
 
 ---
 
@@ -290,7 +289,8 @@ A starter template is available in [.env.example](.env.example).
 
 Firebase is wired into the app for authentication and Firestore-backed user data.
 
-### What is already configured
+### Configured
+
 - Firebase app initialization in [src/lib/firebase.ts](src/lib/firebase.ts)
 - Email/password authentication
 - Firestore access for profile and dependent data
@@ -298,6 +298,7 @@ Firebase is wired into the app for authentication and Firestore-backed user data
 - Persistent profile updates
 
 ### Notes
+
 - If Firebase environment variables are missing, the app falls back to the configured project values in [src/lib/firebase.ts](src/lib/firebase.ts).
 - Add or update Firestore security rules before using the app in production.
 
@@ -305,7 +306,7 @@ Firebase is wired into the app for authentication and Firestore-backed user data
 
 ## 🚢 Deployment
 
-This project is a Vite single-page application and can be deployed to platforms like Vercel, Netlify, Cloudflare Pages, or Firebase Hosting.
+This project is a Vite single-page application and can be deployed to Vercel, Netlify, Cloudflare Pages, or Firebase Hosting.
 
 ### Production Build
 
