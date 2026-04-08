@@ -35,6 +35,15 @@ A modern healthcare appointment platform for discovering hospitals, clinics, doc
 
 Mero Swasthya is a React-based healthcare appointment platform for Nepal.
 
+It helps patients discover providers, compare services, and manage appointment workflows in one place.
+
+### Overview
+
+- Discover hospitals, clinics, doctors, and services
+- Manage patient and provider appointment flows
+- Keep profiles and dependents synced with Firebase
+- Deploy as a client-side SPA with route refresh support
+
 ### Why Mero Swasthya?
 
 - **Provider discovery:** browse hospitals, clinics, and doctors in one place
@@ -88,34 +97,44 @@ Suggested captures:
 - Patient dashboard and appointment history
 - Provider dashboard and schedule pages
 
+### Tip
+
+Place the screenshots in a simple flow: home, listing pages, detail pages, then dashboard views.
+
 ---
 
 ## 🧱 Tech Stack
 
 ### Frontend
-- React 18 - UI framework
-- TypeScript - type-safe application code
-- Vite - development and build tooling
-- React Router - client-side navigation
-- TanStack Query - data orchestration
+- React 18
+- TypeScript
+- Vite
+- React Router
+- TanStack Query
 
 ### Styling
-- Tailwind CSS - utility-first styling
-- shadcn/ui - accessible component system
-- Radix UI primitives - low-level UI building blocks
-- Lucide React icons - icon set
+- Tailwind CSS
+- shadcn/ui
+- Radix UI primitives
+- Lucide React icons
 
-### State and Data
-- React Hook Form - form state handling
-- Zod validation - schema validation
-- localStorage - selected appointment flows
-- Firebase Auth and Firestore - persistent user data
+### State & Data
+- React Hook Form
+- Zod validation
+- localStorage for selected appointment flows
+- Firebase Auth and Firestore for persistent user data
 
 ### Utilities
-- Sonner - toast notifications
-- date-fns - date handling
-- Embla Carousel - sliders
-- Recharts - charts
+- Sonner for toast notifications
+- date-fns for date handling
+- Embla Carousel for sliders
+- Recharts for charts
+
+### Hosting and Integrations
+
+- Firebase Auth
+- Firestore
+- Vercel SPA routing
 
 ---
 
@@ -129,13 +148,13 @@ Make sure you have:
 
 ### Install Dependencies
 
-Using npm:
+1. Install dependencies
 
 ```bash
 npm install
 ```
 
-Using Bun:
+Or with Bun:
 
 ```bash
 bun install
@@ -143,19 +162,19 @@ bun install
 
 ### Run the App Locally
 
-Using npm:
+1. Start the development server
 
 ```bash
 npm run dev
 ```
 
-Using Bun:
+Or with Bun:
 
 ```bash
 bun run dev
 ```
 
-Open the app in your browser at the local Vite URL shown in the terminal.
+2. Open the local Vite URL shown in the terminal
 
 ---
 
@@ -225,6 +244,13 @@ Appointment Nepal System/
 └── README.md
 ```
 
+### Notes
+
+- `src/pages` contains all route-level screens
+- `src/components` contains shared UI and layout building blocks
+- `src/data` contains mock data and local persistence helpers
+- `src/lib/firebase.ts` controls Firebase initialization and fallbacks
+
 ---
 
 ## 🧰 Available Scripts
@@ -238,6 +264,11 @@ Appointment Nepal System/
 | `npm run lint` | Run ESLint |
 | `npm run test` | Run tests once |
 | `npm run test:watch` | Run tests in watch mode |
+
+### Build Notes
+
+- `npm run build` generates the production bundle in `dist`
+- `npm run preview` serves the production output locally
 
 ---
 
@@ -266,6 +297,11 @@ Appointment Nepal System/
 | `/provider/schedule` | Provider schedule page |
 | `/provider/profile` | Provider profile page |
 
+### Routing Notes
+
+- Refreshing nested routes requires SPA fallback hosting support
+- Vercel routing is configured through [vercel.json](vercel.json)
+
 ---
 
 ## ⚙️ Environment Variables
@@ -282,6 +318,15 @@ VITE_FIREBASE_APP_ID=your-app-id
 ```
 
 A starter template is available in [.env.example](.env.example).
+
+### Firebase Keys
+
+- `VITE_FIREBASE_API_KEY`
+- `VITE_FIREBASE_AUTH_DOMAIN`
+- `VITE_FIREBASE_PROJECT_ID`
+- `VITE_FIREBASE_STORAGE_BUCKET`
+- `VITE_FIREBASE_MESSAGING_SENDER_ID`
+- `VITE_FIREBASE_APP_ID`
 
 ---
 
@@ -301,6 +346,12 @@ Firebase is wired into the app for authentication and Firestore-backed user data
 
 - If Firebase environment variables are missing, the app falls back to the configured project values in [src/lib/firebase.ts](src/lib/firebase.ts).
 - Add or update Firestore security rules before using the app in production.
+
+### Future Improvements
+
+- Move more mock data to Firestore
+- Add server-side analytics and reporting
+- Expand provider and appointment workflows
 
 ---
 
@@ -324,6 +375,13 @@ npm run preview
 
 If you deploy to a static host, make sure unknown routes redirect to `index.html` so deep links like `/hospitals` and `/doctors/:id` keep working on refresh.
 
+### Suggested Hosts
+
+- Vercel
+- Netlify
+- Cloudflare Pages
+- Firebase Hosting
+
 ---
 
 ## 🤝 Contributing
@@ -341,6 +399,14 @@ Recommended commit style:
 - `refactor:` for code cleanup
 - `test:` for tests
 
+### Workflow
+
+1. Create a feature branch
+2. Make focused changes
+3. Run the build locally
+4. Review the README and app behavior
+5. Open a pull request
+
 ---
 
 ## 📄 License
@@ -353,11 +419,21 @@ This project is licensed under the MIT License.
 
 Built with care by the Mero Swasthya team.
 
+### Project Ownership
+
+- App design and implementation: Mero Swasthya
+- Documentation: maintained alongside the codebase
+
 ---
 
 ## 📞 Support
 
 For support, open an issue in the repository or contact the project maintainers.
+
+### Contact
+
+- Repository issues
+- Maintainer communication channel
 
 ---
 
