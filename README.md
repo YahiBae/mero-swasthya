@@ -164,41 +164,65 @@ Open the app in your browser at the local Vite URL shown in the terminal.
 
 ```text
 Appointment Nepal System/
-├── public/
+├── public/                           # Static assets
 │   ├── favicon.ico
 │   ├── favicon.svg
+│   ├── placeholder.svg
 │   └── robots.txt
-├── src/
-│   ├── components/
-│   │   ├── ui/
-│   │   └── ...shared UI and layout components
-│   ├── data/
+├── src/                              # Application source
+│   ├── components/                   # Shared UI and layout components
+│   │   ├── ui/                       # shadcn/ui primitives
+│   │   ├── BookAppointmentModal.tsx
+│   │   ├── DashboardSidebar.tsx
+│   │   ├── Footer.tsx
+│   │   └── Navbar.tsx
+│   ├── data/                         # Mock data and local stores
 │   │   ├── appointmentStore.ts
-│   │   └── mockData.ts
-│   ├── hooks/
-│   ├── lib/
-│   ├── pages/
+│   │   ├── mockData.ts
+│   │   └── siteContent.ts
+│   ├── hooks/                        # Custom React hooks
+│   │   ├── use-mobile.tsx
+│   │   └── use-toast.ts
+│   ├── lib/                          # Shared utilities
+│   │   └── utils.ts
+│   ├── pages/                        # Route pages
 │   │   ├── Index.tsx
+│   │   ├── Login.tsx
+│   │   ├── Register.tsx
+│   │   ├── Services.tsx
 │   │   ├── Hospitals.tsx
+│   │   ├── HospitalDetails.tsx
 │   │   ├── Clinics.tsx
+│   │   ├── ClinicDetails.tsx
 │   │   ├── Doctors.tsx
+│   │   ├── DoctorDetails.tsx
 │   │   ├── Departments.tsx
 │   │   ├── EmergencyService.tsx
 │   │   ├── Diagnostics.tsx
 │   │   ├── PatientDashboard.tsx
 │   │   ├── PatientAppointments.tsx
+│   │   ├── ProfilePage.tsx
 │   │   ├── ProviderDashboard.tsx
 │   │   ├── ProviderAppointments.tsx
-│   │   └── ProviderSchedule.tsx
+│   │   ├── ProviderSchedule.tsx
+│   │   └── NotFound.tsx
 │   ├── App.tsx
 │   ├── main.tsx
 │   └── index.css
-├── firebase.json
-├── firestore.rules
-├── firestore.indexes.json
-├── vercel.json
-├── vite.config.ts
-├── package.json
+├── .env.example                      # Firebase env template
+├── firebase.json                    # Firebase hosting config
+├── firestore.indexes.json           # Firestore indexes
+├── firestore.rules                  # Firestore security rules
+├── index.html                       # Vite HTML entry
+├── package.json                     # Scripts and dependencies
+├── playwright.config.ts             # Playwright setup
+├── playwright-fixture.ts             # Playwright fixture helpers
+├── tailwind.config.ts               # Tailwind config
+├── tsconfig.app.json                # App TypeScript config
+├── tsconfig.json                    # Base TypeScript config
+├── tsconfig.node.json               # Node TypeScript config
+├── vercel.json                      # Vercel SPA routing
+├── vite.config.ts                   # Vite config
 └── README.md
 ```
 
