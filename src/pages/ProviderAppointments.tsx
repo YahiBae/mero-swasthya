@@ -8,7 +8,7 @@ import { toast } from "sonner";
 
 const ProviderAppointments = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [filter, setFilter] = useState<"all" | "confirmed" | "completed" | "cancelled">("all");
+  const [filter, setFilter] = useState<"all" | "confirmed" | "pending" | "completed" | "cancelled">("all");
 
   useEffect(() => {
     setAppointments(getAppointments());
@@ -20,6 +20,7 @@ const ProviderAppointments = () => {
   const filters = [
     { key: "all" as const, label: "All" },
     { key: "confirmed" as const, label: "Confirmed" },
+    { key: "pending" as const, label: "Reschedule Pending" },
     { key: "completed" as const, label: "Completed" },
     { key: "cancelled" as const, label: "Cancelled" },
   ];
@@ -69,6 +70,32 @@ const ProviderAppointments = () => {
                         </Button>
                         <Button size="sm" variant="outline" className="text-destructive border-destructive/30 hover:bg-destructive/10" onClick={() => { updateAppointmentStatus(a.id, "cancelled"); refresh(); toast.success("Rejected."); }}>
                           Reject
+                        </Button>
+                      </div>
+                    )}
+                    {a.status === "pending" && (
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            updateAppointmentStatus(a.id, "cancelled");
+                            refresh();
+                            toast.success("Reschedule request accepted. Previous slot cancelled.");
+                          }}
+                        >
+                          Accept Reschedule
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            updateAppointmentStatus(a.id, "confirmed");
+                            refresh();
+                            toast.success("Reschedule request declined. Appointment kept confirmed.");
+                          }}
+                        >
+                          Keep Current Slot
                         </Button>
                       </div>
                     )}

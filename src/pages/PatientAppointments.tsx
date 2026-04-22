@@ -2,26 +2,48 @@ import { useState, useEffect } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import DashboardSidebar from "@/components/DashboardSidebar";
 import StatusBadge from "@/components/StatusBadge";
-import { deleteAppointmentById, deleteAppointmentsByIds, getAppointments, updateAppointmentStatus, type Appointment } from "@/data/appointmentStore";
+import {
+  confirmAppointmentAttendance,
+  deleteAppointmentById,
+  deleteAppointmentsByIds,
+  getAppointmentReminders,
+  getAppointments,
+  requestAppointmentReschedule,
+  updateAppointmentStatus,
+  type Appointment,
+} from "@/data/appointmentStore";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Trash2 } from "lucide-react";
+import { BellRing, Trash2 } from "lucide-react";
 
 const PatientAppointments = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [filter, setFilter] = useState<"all" | "confirmed" | "completed" | "cancelled">("all");
+  const [filter, setFilter] = useState<"all" | "confirmed" | "pending" | "completed" | "cancelled">("all");
   const [clearMode, setClearMode] = useState(false);
   const [selectedPastIds, setSelectedPastIds] = useState<string[]>([]);
   const [clearUpcomingMode, setClearUpcomingMode] = useState(false);
   const [selectedUpcomingIds, setSelectedUpcomingIds] = useState<string[]>([]);
+  const [reminderMap, setReminderMap] = useState<Record<string, { type: "24h" | "2h"; message: string }>>({});
+
+  const refreshAppointments = () => {
+    const nextAppointments = getAppointments();
+    setAppointments(nextAppointments);
+
+    const reminders = getAppointmentReminders(nextAppointments);
+    const map = reminders.reduce<Record<string, { type: "24h" | "2h"; message: string }>>((acc, reminder) => {
+      acc[reminder.appointmentId] = { type: reminder.type, message: reminder.message };
+      return acc;
+    }, {});
+    setReminderMap(map);
+  };
 
   useEffect(() => {
-    setAppointments(getAppointments());
+    refreshAppointments();
   }, []);
 
   const filtered = filter === "all" ? appointments : appointments.filter((a) => a.status === filter);
   const pastFiltered = filtered.filter((a) => a.status === "completed" || a.status === "cancelled");
-  const upcomingFiltered = filtered.filter((a) => a.status === "confirmed");
+  const upcomingFiltered = filtered.filter((a) => a.status === "confirmed" || a.status === "pending");
 
   const toggleSelect = (id: string) => {
     setSelectedPastIds((current) =>
@@ -31,7 +53,7 @@ const PatientAppointments = () => {
 
   const handleClearOne = (id: string) => {
     deleteAppointmentById(id);
-    setAppointments(getAppointments());
+    refreshAppointments();
     setSelectedPastIds((current) => current.filter((item) => item !== id));
     toast.success("Past appointment cleared.");
   };
@@ -43,7 +65,7 @@ const PatientAppointments = () => {
     }
 
     const removed = deleteAppointmentsByIds(selectedPastIds);
-    setAppointments(getAppointments());
+    refreshAppointments();
     setSelectedPastIds([]);
     setClearMode(false);
     toast.success(`${removed} past appointment${removed > 1 ? "s" : ""} cleared.`);
@@ -57,7 +79,7 @@ const PatientAppointments = () => {
 
   const handleClearUpcomingOne = (id: string) => {
     deleteAppointmentById(id);
-    setAppointments(getAppointments());
+    refreshAppointments();
     setSelectedUpcomingIds((current) => current.filter((item) => item !== id));
     toast.success("Upcoming appointment cleared.");
   };
@@ -69,7 +91,7 @@ const PatientAppointments = () => {
     }
 
     const removed = deleteAppointmentsByIds(selectedUpcomingIds);
-    setAppointments(getAppointments());
+    refreshAppointments();
     setSelectedUpcomingIds([]);
     setClearUpcomingMode(false);
     toast.success(`${removed} upcoming appointment${removed > 1 ? "s" : ""} cleared.`);
@@ -77,8 +99,30 @@ const PatientAppointments = () => {
 
   const handleCancel = (id: string) => {
     updateAppointmentStatus(id, "cancelled");
-    setAppointments(getAppointments());
+    refreshAppointments();
     toast.success("Appointment cancelled.");
+  };
+
+  const handleConfirmVisit = (id: string) => {
+    const updated = confirmAppointmentAttendance(id);
+    if (!updated) {
+      toast.error("Unable to confirm this appointment right now.");
+      return;
+    }
+
+    refreshAppointments();
+    toast.success("Visit confirmed. You are all set.");
+  };
+
+  const handleRequestReschedule = (id: string) => {
+    const updated = requestAppointmentReschedule(id);
+    if (!updated) {
+      toast.error("Unable to request reschedule for this appointment.");
+      return;
+    }
+
+    refreshAppointments();
+    toast.success("Reschedule request sent to the provider.");
   };
 
   useEffect(() => {
@@ -96,6 +140,7 @@ const PatientAppointments = () => {
   const filters = [
     { key: "all" as const, label: "All" },
     { key: "confirmed" as const, label: "Upcoming" },
+    { key: "pending" as const, label: "Reschedule Pending" },
     { key: "completed" as const, label: "Completed" },
     { key: "cancelled" as const, label: "Cancelled" },
   ];
@@ -186,8 +231,14 @@ const PatientAppointments = () => {
                     <div className="text-sm text-muted-foreground shrink-0">
                       {a.date} · {a.timeSlot}
                     </div>
+                    {reminderMap[a.id] && (
+                      <div className="rounded-lg border border-amber-300/50 bg-amber-100/60 px-2.5 py-1 text-xs text-amber-800 flex items-center gap-1.5">
+                        <BellRing className="h-3.5 w-3.5" />
+                        {reminderMap[a.id].type === "2h" ? "2h reminder" : "24h reminder"}
+                      </div>
+                    )}
                     <StatusBadge status={a.status} />
-                    {a.status === "confirmed" && clearUpcomingMode && (
+                    {(a.status === "confirmed" || a.status === "pending") && clearUpcomingMode && (
                       <label className="flex items-center gap-2 text-sm text-muted-foreground">
                         <input
                           type="checkbox"
@@ -209,6 +260,18 @@ const PatientAppointments = () => {
                     )}
                     {a.status === "confirmed" && (
                       <div className="flex items-center gap-2">
+                        {a.patientConfirmation !== "confirmed" ? (
+                          <Button variant="outline" size="sm" onClick={() => handleConfirmVisit(a.id)}>
+                            Confirm Visit
+                          </Button>
+                        ) : (
+                          <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-700">
+                            Visit Confirmed
+                          </span>
+                        )}
+                        <Button variant="outline" size="sm" onClick={() => handleRequestReschedule(a.id)}>
+                          Request Reschedule
+                        </Button>
                         <Button variant="outline" size="sm" className="text-destructive border-destructive/30 hover:bg-destructive/10" onClick={() => handleCancel(a.id)}>
                           Cancel
                         </Button>
@@ -222,6 +285,11 @@ const PatientAppointments = () => {
                             <Trash2 className="h-3.5 w-3.5" /> Clear
                           </Button>
                         )}
+                      </div>
+                    )}
+                    {a.status === "pending" && (
+                      <div className="rounded-xl bg-amber-50 px-3 py-2 text-xs text-amber-700">
+                        Reschedule request sent. Waiting for provider response.
                       </div>
                     )}
                     {(a.status === "completed" || a.status === "cancelled") && !clearMode && (
