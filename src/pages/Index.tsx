@@ -18,37 +18,43 @@ import ClinicCard from "@/components/ClinicCard";
 import DoctorCard from "@/components/DoctorCard";
 import { hospitals, clinics, doctors, specializations, locations } from "@/data/mockData";
 import { DEPARTMENT_CATALOG } from "@/data/siteContent";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translations } from "@/data/translations";
 
-const HeroSection = () => (
+const HeroSection = () => {
+  const { language } = useLanguage();
+  const t = translations[language];
+
+  return (
   <section className="hero-gradient relative overflow-hidden py-16 lg:py-22">
     <div className="container mx-auto grid gap-8 px-4 lg:grid-cols-2 lg:items-center">
       <div>
         <p className="inline-flex rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-          Nepal Healthcare Booking Platform
+          {t.home.heroBadge}
         </p>
         <h1 className="mt-4 max-w-2xl text-4xl font-extrabold leading-tight text-foreground md:text-5xl">
-          Hospital Appointment in Minutes, Not Days
+          {t.home.heroTitle}
         </h1>
         <p className="mt-4 max-w-xl text-lg text-muted-foreground">
-          Search departments, pick available doctors, confirm your slot, and track every appointment from one dashboard.
+          {t.home.heroDescription}
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           <Link to="/departments?org=true">
             <Button size="lg" className="gap-2 rounded-full px-8">
-              <Building2 className="h-4 w-4" /> Select Department
+              <Building2 className="h-4 w-4" /> {t.home.selectDepartment}
             </Button>
           </Link>
           <Link to="/doctors">
             <Button variant="outline" size="lg" className="gap-2 rounded-full px-8">
-              <Stethoscope className="h-4 w-4" /> Find Doctor
+              <Stethoscope className="h-4 w-4" /> {t.home.findDoctor}
             </Button>
           </Link>
         </div>
       </div>
 
       <div className="card-shadow rounded-2xl bg-card p-5 md:p-6">
-        <h3 className="text-lg font-semibold text-foreground">Quick Search</h3>
-        <p className="mt-1 text-sm text-muted-foreground">Pick your location and specialization to begin.</p>
+        <h3 className="text-lg font-semibold text-foreground">{t.home.quickSearchTitle}</h3>
+        <p className="mt-1 text-sm text-muted-foreground">{t.home.quickSearchDescription}</p>
 
         <div className="mt-4 grid gap-3">
           <div className="flex items-center gap-2 rounded-xl bg-muted px-4 py-3">
@@ -71,14 +77,15 @@ const HeroSection = () => (
           </div>
           <Link to="/departments?org=true">
             <Button className="w-full gap-2 rounded-xl">
-              <Search className="h-4 w-4" /> Start Booking
+              <Search className="h-4 w-4" /> {t.home.startBooking}
             </Button>
           </Link>
         </div>
       </div>
     </div>
   </section>
-);
+  );
+};
 
 const QuickAccess = () => (
   <section className="container mx-auto px-4 py-10">
