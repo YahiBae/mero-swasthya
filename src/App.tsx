@@ -19,6 +19,7 @@ import ClinicDetails from "./pages/ClinicDetails";
 import DoctorDetails from "./pages/DoctorDetails";
 import PatientDashboard from "./pages/PatientDashboard";
 import PatientAppointments from "./pages/PatientAppointments";
+import PatientNotifications from "./pages/PatientNotifications";
 import ProfilePage from "./pages/ProfilePage";
 import ProviderDashboard from "./pages/ProviderDashboard";
 import ProviderAppointments from "./pages/ProviderAppointments";
@@ -61,6 +62,7 @@ const App = () => (
           {/* Patient Dashboard */}
           <Route path="/dashboard" element={<PatientDashboard />} />
           <Route path="/dashboard/appointments" element={<PatientAppointments />} />
+          <Route path="/dashboard/notifications" element={<PatientNotifications />} />
           <Route path="/dashboard/profile" element={<ProfilePage role="patient" />} />
           {/* Provider Dashboard */}
           <Route path="/provider" element={<ProviderDashboard />} />

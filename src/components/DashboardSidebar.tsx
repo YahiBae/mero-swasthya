@@ -1,4 +1,4 @@
-import { LayoutDashboard, CalendarDays, UserCircle, LogOut, Building2, Clock } from "lucide-react";
+import { LayoutDashboard, CalendarDays, UserCircle, LogOut, Clock, Bell } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import {
@@ -23,6 +23,7 @@ interface DashboardSidebarProps {
 const patientLinks = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "My Appointments", url: "/dashboard/appointments", icon: CalendarDays },
+  { title: "Notifications", url: "/dashboard/notifications", icon: Bell },
   { title: "Profile", url: "/dashboard/profile", icon: UserCircle },
 ];
 
