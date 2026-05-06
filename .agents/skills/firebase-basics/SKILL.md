@@ -49,4 +49,4 @@ Please adhere to these principles when working with Firebase, as they ensure rel
 
 # Common Issues
 
-- **Login Issues:** If the browser fails to open during the login step, use `npx -y firebase-tools@latest login --no-localhost` instead.
+- **Login Issues:** If the browser fails to open during the login step, use `npx -y firebase-tools@latest login --no-localhost` instead...
