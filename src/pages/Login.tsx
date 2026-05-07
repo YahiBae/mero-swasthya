@@ -4,7 +4,7 @@ import { Mail, Lock, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import { toast } from "sonner";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { firebaseAuth, hasFirebaseConfig } from "@/lib/firebase";
 
 const Login = () => {
@@ -34,6 +34,30 @@ const Login = () => {
         toast.error("Email/password login is disabled in Firebase Console.");
       } else {
         toast.error("Login failed. Please try again.");
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleGoogle = async () => {
+    if (!hasFirebaseConfig() || !firebaseAuth) {
+      toast.error("Firebase is not configured. Add VITE_FIREBASE_* values to your .env file.");
+      return;
+    }
+
+    const provider = new GoogleAuthProvider();
+    try {
+      setIsSubmitting(true);
+      await signInWithPopup(firebaseAuth, provider);
+      toast.success("Login successful!");
+      navigate("/dashboard");
+    } catch (error) {
+      const code = (error as { code?: string }).code;
+      if (code === "auth/popup-closed-by-user") {
+        toast.error("Popup closed before completing sign-in.");
+      } else {
+        toast.error("Google sign-in failed. Please try again.");
       }
     } finally {
       setIsSubmitting(false);
@@ -87,6 +111,23 @@ const Login = () => {
               </Button>
             </form>
 
+            <div className="mt-4">
+              <div className="relative my-4">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-border" />
+                </div>
+                <div className="relative flex justify-center text-xs">
+                  <span className="bg-card px-3 text-muted-foreground">or continue with</span>
+                </div>
+              </div>
+
+              <Button variant="outline" className="w-full gap-2 rounded-xl" onClick={handleGoogle} disabled={isSubmitting}>
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M21.35 11.1h-9.2v2.9h5.3c-.25 1.45-1.57 3.9-5.3 3.9-3.2 0-5.8-2.63-5.8-5.86 0-3.23 2.6-5.87 5.8-5.87 1.82 0 3.04.78 3.74 1.45l2.56-2.5C17.8 3.28 15.88 2.2 12.95 2.2 7.98 2.2 4 6.15 4 11.04c0 4.9 3.98 8.85 8.95 8.85 5.15 0 8.55-3.62 8.55-8.74 0-.59-.06-1.05-.15-1.11z" fill="#EA4335"/>
+                </svg>
+                Continue with Google
+              </Button>
+            </div>
             <p className="mt-6 text-center text-sm text-muted-foreground">
               Don't have an account?{" "}
               <Link to="/register" className="font-medium text-primary hover:underline">Register</Link>
