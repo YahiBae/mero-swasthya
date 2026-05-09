@@ -521,4 +521,4 @@ For support, open an issue in the repository or contact the project maintainers.
 
 ---
 
-Made for better healthcare access in Nepal...
+Made for better healthcare access in Nepal.
